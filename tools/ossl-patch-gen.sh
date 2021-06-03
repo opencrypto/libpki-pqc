@@ -32,9 +32,12 @@ mkdir ${PATCH_DIR} ${PATCH_DIR}/crypto \
       ${PATCH_DIR}/crypto/composite ${PATCH_DIR}/crypto/oqs \
       ${PATCH_DIR}/oqs-template
 
+# Copy the .git/ directory from the un-patched openssl
+cp -rf ${OSSL_CLEAN}/.git ${OSSL_PATCHED}/
+
 # Generate a new patch
 cd ${OSSL_PATCHED} \
-   && git diff -U --cc > ../${PATCH_DIR}/openssl.patch \
+   && git diff -U --cc . > ../${PATCH_DIR}/openssl.patch \
    && cp -r crypto/composite ../${PATCH_DIR}/crypto/ \
    && cp -r crypto/oqs ../${PATCH_DIR}/crypto/ \
    && cp -r oqs-template/generate.yml ../${PATCH_DIR}/oqs-template/ \
