@@ -1,0 +1,15 @@
+# =========================================
+# Composite Crypto and Combined Crypto OIDs
+# =========================================
+#
+# Composite Crypto OID:
+# 1.3.6.1.4.1.18227.2.1
+#
+# CompositeOR Crypto OID:
+# 1.3.6.1.4.1.18227.2.2
+#
+
+1 3 6 1 4 1 18227 : id-pen-openca : OpenCA Labs Private Enterprise Name
+id-pen-openca 2 1 : composite     : Composite Crypto With Combined Keys
+id-pen-openca 2 2 : composite_alt : Composite Crypto With Alternative Keys
+

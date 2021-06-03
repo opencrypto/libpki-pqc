@@ -1,0 +1,21 @@
+
+#ifndef OPENSSL_NO_COMPOSITE
+  // Composite Crypto and Composite Alt Crypto
+  extern const EVP_PKEY_METHOD composite_pkey_meth;
+#endif
+
+// ========================
+// Composite Crypto Support
+// ========================
+
+#ifndef OPENSSL_NO_COMPOSITE
+# define EVP_PKEY_COMPOSITE NID_composite
+# define EVP_PKEY_COMPOSITE_OR NID_composite_alt
+#endif
+
+# define EVP_PKEY_CTRL_COMPOSITE_PUSH    0x201
+# define EVP_PKEY_CTRL_COMPOSITE_POP     0x202
+# define EVP_PKEY_CTRL_COMPOSITE_ADD     0x203
+# define EVP_PKEY_CTRL_COMPOSITE_DEL     0x204
+# define EVP_PKEY_CTRL_COMPOSITE_CLEAR   0x205
+

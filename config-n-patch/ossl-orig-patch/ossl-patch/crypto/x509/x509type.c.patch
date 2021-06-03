@@ -1,0 +1,4 @@
+    case NID_composite:
+    case NID_compositeOr:
+        ret = EVP_PKT_SIGN;
+        break;

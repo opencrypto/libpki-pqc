@@ -1,0 +1,20 @@
+# ==============================================
+# Instructuions:
+#
+# Add The following Lines in the include/crypto/asn1.h
+# file, add it to the standard_methods definitions.
+#
+# Caveat:
+#
+# The corresponding "find" function in OpenSSL is expecting
+# the values of the ID to be in order across the different
+# methods. Please check with NID is assigned to the specific
+# OID used (i.e., NID_composite) and insert it in the
+# appropriate place. Commonly, it is safe to add it at the
+# end of the list.
+#
+
+#ifndef OPENSSL_NO_COMPOSITE
+extern const EVP_PKEY_ASN1_METHOD composite_asn1_meth;
+#endif
+
