@@ -68,8 +68,7 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 	cd "${OSSL_CLEAN}"
 
 	# Apply the patch
-	echo git apply -p1 \< ../${PATCH_DIR}/openssl.patch
-	exit 0
+	git apply -p1 < ../${PATCH_DIR}/openssl.patch
 
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
 	  options="--prefix=/opt/libpki-oqs -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
