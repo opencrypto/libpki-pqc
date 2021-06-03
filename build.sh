@@ -21,7 +21,7 @@ NOW=$(date +%Y%m%d%H%M%S)
 # PATCH_DIR=config-n-patch/${LAST_PATCH}
 PATCH_DIR=config-n-patch/latest-ossl-patch
 OSSL_CLEAN=openssl
-DEBUG_MODE=NO
+DEBUG_MODE=YES
 
 # Get liboqs latest repo
 if [ ! -d "liboqs" -o "$1" = "liboqs" ] ; then
@@ -102,7 +102,16 @@ if [ ! -d "libpki" -o "$1" = "libpki" ] ; then
 	fi
 
 	# Execute the build
-	cd libpki && ./configure --prefix=/opt/libpki-oqs --disable-ldap --enable-composite --enable-debug
+	if [ "${DEBUG_MODE}" = "NO" ] ; then
+		cd libpki \
+		   && ./configure --prefix=/opt/libpki-oqs --disable-ldap \
+		   	          --enable-composite --enable-oqs --disable-pg --disable-mysql
+	else
+		cd libpki \
+		   && ./configure --prefix=/opt/libpki-oqs --disable-ldap \
+		   		  --enable-composite --enable-oqs --disable-pg --disable-mysql \
+				  --enable-debug
+	fi
 
 	make && sudo make install
 
