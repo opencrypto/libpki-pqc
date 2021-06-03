@@ -3,7 +3,7 @@
 # (c) 2021 by Massimiliano Pala
 
 NOW=$(date +%Y%m%d%H%M%S)
-PATCH_DIR=$(echo config-n-patch/ossl-patch-* | sed -e 's|.*\s||')
+PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
 LIBOQS_DIR=liboqs
 OSSL_CLEAN=openssl
 DEBUG_MODE=NO
@@ -42,29 +42,6 @@ cd ${OSSL_CLEAN}
 
 # Apply the patch
 git apply -p1 < ../${PATCH_DIR}/openssl.patch
-
-exit 0
-
-if [ "x${DEBUG_MODE}" = "xYES" ] ; then
-  options="--prefix=/opt/libpki-oqs -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
-else
-  options="--prefix=/opt/libpki-oqs -shared"
-fi
-
-# Configure OpenSSL
-./config ${options}
-
-# Rebuilds the Objects database
-python3 oqs-template/generate.py
-make generate_crypto_objects
-
-# Configure OpenSSL
-./config ${options}
-
-# Let's now build the OpenSSL library
-# make && sudo make install_sw
-
-# Done
 cd ..
 
 echo

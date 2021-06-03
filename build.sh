@@ -16,7 +16,9 @@
 # 	graphviz
 
 NOW=$(date +%Y%m%d%H%M%S)
-PATCH_DIR=$(echo config-n-patch/ossl-patch-* | sed -e 's|.*\s||')
+PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
+# LAST_PATCH=20210602215340-ossl-patch
+# PATCH_DIR=config-n-patch/${LAST_PATCH}
 OSSL_CLEAN=openssl
 DEBUG_MODE=NO
 
@@ -62,6 +64,9 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 	# Copy the our template for enabled algorithms
 	# cp config/libpki-generate-template.yml openssl/oqs-template/generate.yml
 
+	# Get into the OpenSSL directory
+	cd ${OSSL_CLEAN}
+
 	# Apply the patch
 	git apply -p1 < ../${PATCH_DIR}/openssl.patch
 
@@ -83,7 +88,7 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 
 	# Let's now build the OpenSSL library
 	make build_libs && \
-	     sudo make install_sw
+	     sudo make install_dev # install_sw
 
 	cd ..
 fi

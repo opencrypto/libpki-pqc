@@ -41,7 +41,7 @@ cd ${OSSL_PATCHED} \
    && cd ..
 
 # Archive the Patched OpenSSL source code
-tar cvfpz ${PATCH_DIR}/${NOW}-openssl-patched-src.tar.gz ${OSSL_PATCHED}
+tar -cvpz --exclude="*\.git\/*" -f ${PATCH_DIR}/${NOW}-openssl-patched-src.tar.gz ${OSSL_PATCHED}
 
 echo
 echo "OpenSSL OQS/Composite Patch generated at ${PATCH_DIR}."

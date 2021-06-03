@@ -3,7 +3,7 @@
 # (c) 2021 by Massimiliano Pala
 
 NOW=$(date +%Y%m%d%H%M%S)
-PATCH_DIR=$(echo config-n-patch/ossl-patch-* | sed -e 's|.*\s||')
+PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
 LIBOQS_DIR=liboqs
 OSSL_CLEAN=openssl
 DEBUG_MODE=NO
