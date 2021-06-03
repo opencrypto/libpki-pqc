@@ -1,3 +1,0 @@
-LIBS=../../libcrypto
-SOURCE[../../libcrypto]= \
-        oqs_meth_max.c 

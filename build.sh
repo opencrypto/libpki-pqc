@@ -16,9 +16,10 @@
 # 	graphviz
 
 NOW=$(date +%Y%m%d%H%M%S)
-PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
-# LAST_PATCH=20210602215340-ossl-patch
+# PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
+# LAST_PATCH=20210603002503-ossl-patch
 # PATCH_DIR=config-n-patch/${LAST_PATCH}
+PATCH_DIR=config-n-patch/latest-ossl-patch
 OSSL_CLEAN=openssl
 DEBUG_MODE=NO
 

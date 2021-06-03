@@ -21,12 +21,6 @@ if ! [ -d "${OSSL_PATCHED}" ] ; then
 	exit 1;
 fi
 
-# Saves the old patch
-# if [ -e config-n-patch/ossl-patch/openssl-1.1.1-composite.patch ] ; then
-#   cp config-n-patch/ossl-patch/openssl-1.1.1-composite.patch \
-#      config-n-patch/ossl-patch/openssl-1.1.1-composite.patch.bak
-# fi
-
 # Prepares the destination for the patch
 mkdir ${PATCH_DIR} ${PATCH_DIR}/crypto \
       ${PATCH_DIR}/crypto/composite ${PATCH_DIR}/crypto/oqs \
@@ -44,7 +38,16 @@ cd ${OSSL_PATCHED} \
    && cd ..
 
 # Archive the Patched OpenSSL source code
-tar -cvpz --exclude="*\.git\/*" -f ${PATCH_DIR}/${NOW}-openssl-patched-src.tar.gz ${OSSL_PATCHED}
+tar -cpz --exclude="*\.git\/*" -f ${PATCH_DIR}/${NOW}-openssl-patched-src.tar.gz ${OSSL_PATCHED}
+
+# Links as the latest version
+[ -e "config-n-patch/latest-ossl-patch" ] \
+   && rm "config-n-patch/latest-ossl-patch"
+
+# Generates the Symlink
+cd config-n-patch \
+   && ln -s "${NOW}-ossl-patch" "latest-ossl-patch" \
+   && cd ..
 
 echo
 echo "OpenSSL OQS/Composite Patch generated at ${PATCH_DIR}."
