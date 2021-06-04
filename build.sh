@@ -37,7 +37,7 @@ if [ ! -d "liboqs" -o "$1" = "liboqs" ] ; then
 	# Execute the build
 	cd liboqs/build && \
 		cmake -DCMAKE_INSTALL_PREFIX=/opt/libpki-oqs -GNinja .. && \
-		ninja && sudo ninja install
+		ninja && ninja install
 	cd ../..
 fi
 
@@ -89,7 +89,7 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 
 	# Let's now build the OpenSSL library
 	make build_libs && \
-	     sudo make install_dev # install_sw
+	     make install_dev # install_sw
 
 	cd ..
 fi
@@ -113,7 +113,10 @@ if [ ! -d "libpki" -o "$1" = "libpki" ] ; then
 				  --enable-debug
 	fi
 
-	make && sudo make install
+	[ -d /opt/libpki-oqs/lib64 ] && rm -r /opt/libpki-oqs/lib64
+	[ -e /opt/libpki-oqs/lib64 ] || ln -s /opt/libpki-oqs/lib /opt/libpki-oqs/lib64
+
+	make && make install
 
 	cd ..
 fi
