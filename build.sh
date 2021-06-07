@@ -36,7 +36,7 @@ if [ ! -d "liboqs" -o "$1" = "liboqs" ] ; then
 
 	# Execute the build
 	cd liboqs/build && \
-		cmake -DCMAKE_INSTALL_PREFIX=/opt/libpki-oqs -GNinja .. && \
+		cmake -DCMAKE_INSTALL_PREFIX=/opt/libpki-pqc -GNinja .. && \
 		ninja && ninja install
 	cd ../..
 fi
@@ -72,9 +72,9 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 	git apply -p1 < ../${PATCH_DIR}/openssl.patch
 
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
-	  options="--prefix=/opt/libpki-oqs -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
+	  options="--prefix=/opt/libpki-pqc -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
 	else
-	  options="--prefix=/opt/libpki-oqs -shared"
+	  options="--prefix=/opt/libpki-pqc -shared"
 	fi
 
 	# Configure OpenSSL
@@ -98,23 +98,23 @@ fi
 if [ ! -d "libpki" -o "$1" = "libpki" ] ; then
 
 	if ! [ -d "libpki" ] ; then
-		git clone -b libpki-oqs https://github.com/openca/libpki.git
+		git clone -b libpki-pqc https://github.com/openca/libpki.git
 	fi
 
 	# Execute the build
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
 		cd libpki \
-		   && ./configure --prefix=/opt/libpki-oqs --disable-ldap \
+		   && ./configure --prefix=/opt/libpki-pqc --disable-ldap \
 		   	          --enable-composite --enable-oqs --disable-pg --disable-mysql
 	else
 		cd libpki \
-		   && ./configure --prefix=/opt/libpki-oqs --disable-ldap \
+		   && ./configure --prefix=/opt/libpki-pqc --disable-ldap \
 		   		  --enable-composite --enable-oqs --disable-pg --disable-mysql \
 				  --enable-debug
 	fi
 
-	[ -d /opt/libpki-oqs/lib64 ] && rm -r /opt/libpki-oqs/lib64
-	[ -e /opt/libpki-oqs/lib64 ] || ln -s /opt/libpki-oqs/lib /opt/libpki-oqs/lib64
+	[ -d /opt/libpki-pqc/lib64 ] && rm -r /opt/libpki-pqc/lib64
+	[ -e /opt/libpki-pqc/lib64 ] || ln -s /opt/libpki-pqc/lib /opt/libpki-pqc/lib64
 
 	make && make install
 
