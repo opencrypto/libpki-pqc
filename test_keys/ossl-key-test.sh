@@ -1,14 +1,15 @@
 #!/bin/bash
 
 # Generates some classic keys
-pki-tool genkey -batch -algor ec -bits 256 -out ec.key
-pki-tool genkey -batch -algor rsa -bits 2048 -out rsa.key
+openssl genrsa 2048 > rsa.key
+openssl ecparams -genkey -noout -curve prime256v1 -out ec.key
  
 # Generates some Post-Quantum keys
-pki-tool genkey -batch -algor falcon -bits 128 -out falcon.key
-pki-tool genkey -batch -algor dilithium -bits 128 -out dilithium.key
+pki-tool genpkey -algorithm falcon512 -out falcon.key
+pki-tool genpkey -algorithm dilithium2 -out dilithium.key
 
 # Generates a Classic Composite
+# No Equivalent in OpenSSL
 pki-tool genkey -batch -algor composite -addkey rsa.key -addkey ec.key
 
 # Generates a Post-Quantum Composite

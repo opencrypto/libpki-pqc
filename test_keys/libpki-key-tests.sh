@@ -14,7 +14,8 @@ pki-tool genkey -batch -algor composite -addkey rsa.key -addkey ec.key
 # Generates a Post-Quantum Composite
 pki-tool genkey -batch -algor composite \
 	-addkey falcon.key       \
-	-addkey dilithium.key
+	-addkey dilithium.key    \
+	-out composite-one.key
 
 # Generates an Hybrid key (i.e., a mix of Classic and Post-Quantum algorithms)
 pki-tool genkey -batch -algor composite \
@@ -22,7 +23,9 @@ pki-tool genkey -batch -algor composite \
 	-addkey ec.key \
 	-addkey dilithium.key \
 	-addkey rsa.key \
-	-out composite.key
+	-out composite-two.key
+
+cp composite-one.key composite.key
 
 exit 0
 
