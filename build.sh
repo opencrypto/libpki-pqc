@@ -89,9 +89,9 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 	# Let's now build the OpenSSL library
 	make build_libs && \
 	if ! [ "$WHOAMI" = "root" ] ; then \
-		     sudo make install_dev ; \
+		     sudo make install ; \
 	else \
-	     make install_dev ; \
+	     make install ; \
 	fi
 
 	cd ..
