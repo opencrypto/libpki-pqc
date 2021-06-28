@@ -15,13 +15,12 @@
 # 	doxygen \
 # 	graphviz
 
-NOW=$(date +%Y%m%d%H%M%S)
-# PATCH_DIR=$(echo config-n-patch/2*-ossl-patch* | sed -e 's|.*\s||')
-# LAST_PATCH=20210603002503-ossl-patch
-# PATCH_DIR=config-n-patch/${LAST_PATCH}
 PATCH_DIR=config-n-patch/latest-ossl-patch
 OSSL_CLEAN=openssl
 DEBUG_MODE=YES
+
+WHOAMI=$( whoami )
+NOW=$(date +%Y%m%d%H%M%S)
 
 # Get liboqs latest repo
 if [ ! -d "liboqs" -o "$1" = "liboqs" ] ; then
@@ -89,7 +88,11 @@ if [ ! -d "${OSSL_CLEAN}" -o "$1" = "openssl" ] ; then
 
 	# Let's now build the OpenSSL library
 	make build_libs && \
-	     make install_dev # install_sw
+	if ! [ "$WHOAMI" = "root" ] ; then \
+		     sudo make install_dev ; \
+	else \
+	     make install_dev ; \
+	fi
 
 	cd ..
 fi
@@ -98,7 +101,7 @@ fi
 if [ ! -d "libpki" -o "$1" = "libpki" ] ; then
 
 	if ! [ -d "libpki" ] ; then
-		git clone -b libpki-pqc https://github.com/openca/libpki.git
+		git clone -b libpki-oqs https://github.com/openca/libpki.git
 	fi
 
 	# Execute the build
@@ -116,7 +119,12 @@ if [ ! -d "libpki" -o "$1" = "libpki" ] ; then
 	[ -d /opt/libpki-pqc/lib64 ] && rm -r /opt/libpki-pqc/lib64
 	[ -e /opt/libpki-pqc/lib64 ] || ln -s /opt/libpki-pqc/lib /opt/libpki-pqc/lib64
 
-	make && make install
+	make && \
+	if ! [ "$WHOAMI" = "root" ] ; then \
+		sudo make install ; \
+	else \
+		make install ; \
+	fi
 
 	cd ..
 fi
