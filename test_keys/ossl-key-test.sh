@@ -5,12 +5,13 @@ openssl genrsa 2048 > rsa.key
 openssl ecparams -genkey -noout -curve prime256v1 -out ec.key
  
 # Generates some Post-Quantum keys
-pki-tool genpkey -algorithm falcon512 -out falcon.key
-pki-tool genpkey -algorithm dilithium2 -out dilithium.key
+openssl genpkey -algorithm falcon512 -out falcon.key
+openssl genpkey -algorithm dilithium2 -out dilithium.key
 
 # Generates a Classic Composite
-# No Equivalent in OpenSSL
-pki-tool genkey -batch -algor composite -addkey rsa.key -addkey ec.key
+pki-tool genkey -batch -algor composite \
+	-addkey rsa.key -addkey ec.key \
+	-out classic-composite.key
 
 # Generates a Post-Quantum Composite
 pki-tool genkey -batch -algor composite \
