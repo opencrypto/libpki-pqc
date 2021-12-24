@@ -2,6 +2,12 @@
 
 Quick & Drafty tool for building the OQS OpenSSL and LibPKI w/ Support for Post-Quantum Algorithms - this is just an internal repo that might be useful for other developers and that is the only reason we are sharing it.
 
+# Versions
+
+The libpki-pqc package has been updated to support the latest version of LibOQS and its OpenSSL wrapper.
+Specifically, the current version builds on top of LibOQS version 0.7.1 (Dec 2021) and the OpenSSL OQS
+wrapper version 1.1.1m (Dec 2021)
+
 # Usage
 This is a quick tool we use to ease building LibPKI and OpenSSL w/ Open Quantum Safe support and an initial implementation for Composite Crypto.
 

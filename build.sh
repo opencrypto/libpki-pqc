@@ -47,14 +47,18 @@ LIBPKI_VERSION=main
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
-LIBPKI_DIR=libpki-${LIBPKI_VERSION}
+LIBPKI_DIR=libpki-oqs
 
 PATCH_DIR=config-n-patch/latest-ossl-patch
 # OSSL_DIR=openssl
 DEBUG_MODE=YES
 
+SUDO=
 WHOAMI=$( whoami )
 NOW=$(date +%Y%m%d%H%M%S)
+
+# Sets the SUDO command
+[ "$WHOAMI" = "root" ] || SUDO=sudo
 
 # Get liboqs latest repo
 if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
@@ -63,7 +67,7 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 	echo "--> Retrieving LibOQS package (${LIBOQS_VERSION}) ..."
 	result=$(curl -s "${LIBOQS_FULL_URL}" --output "${LIBOQS_OUTPUT}")
 	if [ $? -gt 0 ] ; then
-	  echo "    [ERROR: Cannot acces ${LIBOQS_FULL_URL}]"
+	  echo "    [ERROR: Cannot access ${LIBOQS_FULL_URL}]"
 	  echo
 	  echo "--> Error Logs Follows:"
 	  echo "$result"
@@ -82,7 +86,7 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 
 	result=$(cd ${LIBOQS_DIR}/build && \
 	         cmake -DCMAKE_INSTALL_PREFIX=${DEST_DIR} -GNinja .. && \
-	         ninja && sudo ninja install)
+	         ninja && ${SUDO} ninja install)
 
 	if ! [ $? -eq 0 ] ; then
 	  echo "    [ERROR: Build failed with code $?]"
@@ -174,11 +178,9 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 
 	# Configure OpenSSL
 	echo "--> Configuring OpenSSL and Generating Crypto Objects ..."
-	result=$(cd ${OSSL_DIR} && \
-	    ./config ${options} && \
+	result=$(cd ${OSSL_DIR} && ./config ${options} && \
 		LIBOQS_DOCS_DIR=../${LIBOQS_DOCS_DIR} python3 oqs-template/generate.py && \
-		make generate_crypto_objects && \
-		./config ${options})
+		make generate_crypto_objects && ./config ${options})
 
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot configure OpenSSL!]"
@@ -187,7 +189,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: Patch applied with no rejections]"
+		echo "    [SUCCESS: OpenSSL successfully configured]"
 	fi
 
 	# Execute the build
@@ -206,12 +208,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	fi
 
 	# Let's now build the OpenSSL library
-	result=$(cd ${OSSL_DIR} ; \
-			 if ! [ "$WHOAMI" = "root" ] ; then \
-		        sudo make install_sw 2>&1 ; \
-		 	 else \
-		     	make install_sw ; \
-			 fi)
+	result=$(cd ${OSSL_DIR} && ${SUDO} make install_sw 2>&1 )
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot install OpenSSL!]"
 		echo
@@ -219,42 +216,70 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: OpenSSL successfully installed on ${}]"
+		echo "    [SUCCESS: OpenSSL successfully installed on ${DEST_DIR}]"
 	fi
 	echo "--> Removing Compressed Archive (${OSSL_OUTPUT})"
 	rm "${OSSL_OUTPUT}"
 	echo "    [SUCCESS: Archive Removed]"
-
 
 fi
 
 # Fetch the latest openssl-liboqs branch
 if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 
-	if ! [ -d "libpki" ] ; then
-		git clone -b libpki-oqs https://github.com/openca/libpki.git
+	# Clears the directory, if it was forced
+	[ -d "${LIBPKI_DIR}" ] || rm -rf "${LIBPKI_DIR}"
+
+	echo "--> Cloning archive from github (repo: libpki, branch: libpki-oqs)"
+	if ! [ -d "${LIBPKI_DIR}" ] ; then
+		result=$( git clone -b libpki-oqs "https://github.com/openca/libpki.git" "${LIBPKI_DIR}" 2>&1 )
+	fi
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot clone LibPKI (branch: libpki-oqs)!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: LibPKI repo (branch: libpki-oqs) successfully cloned]"
 	fi
 
 	# Execute the build
+	echo "--> Building LibPKI (Debug Mode: ${DEBUG_MODE})"
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
-		cd libpki \
-		   && ./configure --prefix=${DEST_DIR} --disable-ldap \
-		   	          --enable-composite --enable-oqs --disable-pg --disable-mysql
+		result=$(cd ${LIBPKI_DIR} && \
+		   	./configure --prefix=${DEST_DIR} --disable-ldap \
+		   	    --enable-composite --enable-oqs --disable-pg --disable-mysql )
 	else
-		cd libpki \
-		   && ./configure --prefix=${DEST_DIR} --disable-ldap \
-		   		  --enable-composite --enable-oqs --disable-pg --disable-mysql \
-				  --enable-debug
+		result=$(cd ${LIBPKI_DIR} && \
+		    ./configure --prefix=${DEST_DIR} --disable-ldap \
+		   		--enable-composite --enable-oqs --disable-pg --disable-mysql \
+					--enable-debug )
+	fi
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot build LibPKI (branch: libpki-oqs)!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: LibPKI (branch: libpki-oqs) successfully built]"
 	fi
 
-	[ -d ${DEST_DIR}/lib64 ] && rm -r ${DEST_DIR}/lib64
-	[ -e ${DEST_DIR}/lib64 ] || ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
+	echo "--> Consolidating lib and lib64 in the destination (${DEST_DIR}})"
+	[ -d ${DEST_DIR}/lib64 ] && ${SUDO} rm -r ${DEST_DIR}/lib64
+	[ -e ${DEST_DIR}/lib64 ] || ${SUDO} ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
+	echo "    [SUCCESS: Removed ${DEST_DIR}/lib64 and linked to ${DEST_DIR}/lib]"
 
-	make && \
-	if ! [ "$WHOAMI" = "root" ] ; then \
-		sudo make install ; \
-	else \
-		make install ; \
+	result=$(cd ${LIBPKI_DIR} && make && ${SUDO} make install 2>&1 )
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot install LibPKI (branch: libpki-oqs) on ${DEST_DIR}]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: LibPKI (branch: libpki-oqs) successfully installed on ${DEST_DIR}]"
 	fi
 
 	cd ..
