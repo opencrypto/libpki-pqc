@@ -147,9 +147,9 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
     [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR}/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs )
 
     # Copies the crypto directories
-	echo "--> Copying Our Versions of the crypto layer ..."
+    echo "--> Copying Our Versions of the crypto layer ..."
     cp -r ${PATCH_DIR}/crypto/composite ${OSSL_DIR}/crypto/ && \
-    	cp -r ${PATCH_DIR}/crypto/oqs ${OSSL_DIR}/crypto/
+      cp -r ${PATCH_DIR}/crypto/oqs ${OSSL_DIR}/crypto/
 	
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot copy the our composite or oqs directories!]"
@@ -166,7 +166,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 
 	# Apply the patch
 	# cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
-	cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
+	cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1 && cd ..
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot apply our patch!]"
 		echo
