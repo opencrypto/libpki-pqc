@@ -9,7 +9,13 @@ pki-tool genkey -batch -algor falcon -bits 128 -out falcon.key
 pki-tool genkey -batch -algor dilithium -bits 128 -out dilithium.key
 
 # Generates a Classic Composite
-pki-tool genkey -batch -algor composite -addkey rsa.key -addkey ec.key
+pki-tool genkey -batch -algor composite \
+	-addkey rsa.key -addkey ec.key  \
+	-out composite-rsa-ec.key
+
+pki-tool genkey -batch -algor composite \
+	-addkey rsa.key -addkey rsa.key  \
+	-out composite-rsa-rsa.key
 
 # Generates a Post-Quantum Composite
 pki-tool genkey -batch -algor composite \
