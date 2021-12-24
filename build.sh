@@ -113,18 +113,13 @@ fi
 
 # Fetch the latest openssl-liboqs branch
 if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
-# OpenSSL
-	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
-	  options="--prefix=${DEST_DIR} -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
-	else
-	  options="--prefix=${DEST_DIR} -shared"
-	fi
 
+	# OpenSSL
 	if ! [ -f "${OSSL_OUTPUT}" ] ; then
 		echo "--> Retrieving OpenSSL package (${OSSL_VERSION}) ..."
 		result=$(curl -s "${OSSL_FULL_URL}" --output "${OSSL_OUTPUT}")
 		if [ $? -gt 0 ] ; then
-		  echo "    [ERROR: Cannot acces ${OSSL_FULL_URL}]"
+		  echo "    [ERROR: Cannot access ${OSSL_FULL_URL}]"
 		  echo
 		  echo "--> Error Logs Follows:"
 		  echo "$result"
@@ -132,9 +127,10 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		else
 		  echo "    [SUCCESS: Package Retrieved from ${OSSL_FULL_URL}]"
 		fi
+	
+		result=$(unzip "${OSSL_OUTPUT}")
 	fi
 
-	result=$(unzip "${OSSL_OUTPUT}")
 
 	echo "--> Creating needed OQS links ..."
 	[ -e "${OSSL_DIR}/oqs" ] || $(cd ${OSSL_DIR} && ln -s ../${LIBOQS_DIR}/build oqs)
@@ -180,6 +176,13 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		exit 1
 	else
 		echo "    [SUCCESS: Patch applied with no rejections]"
+	fi
+
+	# Build options
+	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
+	  options="--prefix=${DEST_DIR} -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
+	else
+	  options="--prefix=${DEST_DIR} -shared"
 	fi
 
 	# Configure OpenSSL
