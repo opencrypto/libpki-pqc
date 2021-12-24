@@ -10,9 +10,9 @@ BASE_DIR=${PRJ_NAME}
 
 # Builds the Package Structure
 mkdir -p ${BASE_DIR}/DEBIAN
-echo <<EOF
+cat << EOF > ${BASE_DIR}/DEBIAN/control
 Package: ${PRJ_NAME}
-Version: ${PKG_VER}
+Version: ${PRJ_VER}
 Section: custom
 Priority: optional
 Architecture: all
@@ -20,17 +20,17 @@ Essential: no
 Installed-Size: 1024
 Maintainer: OpenCA.Org
 Description: Provides Post-Quantum LibPKI and OpenSSL
-EOF > ${BASE_DIR}/DEBIAN/control
+EOF
 
 # Copies the binary files from the installed directory
-mkdir -p opt/${BASE_DIR} && \
-  cp -rvf /opt/${BASE_DIR}/* opt/${BASE_DIR}/
+mkdir -p ${BASE_DIR}/opt/${BASE_DIR} && \
+  cp -rvf /opt/${BASE_DIR}/* ${BASE_DIR}/opt/${BASE_DIR}
 
 # Builds the package
 dpkg-deb --build ${BASE_DIR}
 
 # Fixes the name
-mv ${PRJ_NAME}.deb ${PRJ_NAME}-${PRJ_VER}_${ARCH}.deb
+mv ${PRJ_NAME}.deb ${PRJ_NAME}-${PRJ_VER}_${PRJ_ARCH}.deb
 
 # All Done
 exit 0
