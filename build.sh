@@ -18,6 +18,11 @@
 # Destination Directory
 DEST_DIR=/opt/libpki-pqc
 
+# Release Information
+RELEASE=2021-12-24-0001
+
+echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
+
 # Base GitHub URL
 GITHUB_BASE_URL=https://codeload.github.com/open-quantum-safe
 GITHUB_ARCHIVE_TYPE=zip
