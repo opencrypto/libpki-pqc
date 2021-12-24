@@ -108,6 +108,8 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 	echo "--> LibOQS: All Done."
 	echo
 
+	# Exits if we only wanted this component installed
+	[ "x$1" = "x" ] || exit 0
 fi
 
 
@@ -231,6 +233,8 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	rm "${OSSL_OUTPUT}"
 	echo "    [SUCCESS: Archive Removed]"
 
+	# Exits if we only wanted this component installed
+	[ "x$1" = "x" ] || exit 0
 fi
 
 # Fetch the latest openssl-liboqs branch
@@ -292,5 +296,8 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 	fi
 
 	cd ..
+
+	# Exits if we only wanted this component installed
+	[ "x$1" = "x" ] || exit 0
 fi
 
