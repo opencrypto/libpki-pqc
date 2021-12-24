@@ -19,7 +19,7 @@
 DEST_DIR=/opt/libpki-pqc
 
 # Release Information
-RELEASE=2021-12-24-0001
+RELEASE=2021-12-24-0002
 
 echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
 
