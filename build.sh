@@ -165,11 +165,12 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	echo "--> Applying latest OSSL patch (${PATCH_DIR}) ..."
 
 	# Apply the patch
-	result=$(cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch)
+	# cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
+	cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot apply our patch!]"
 		echo
-		echo "$result"
+		# echo "$result"
 		echo
 		exit 1
 	else
