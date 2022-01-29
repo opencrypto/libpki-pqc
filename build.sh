@@ -56,7 +56,7 @@ LIBPKI_DIR=libpki-oqs
 
 PATCH_DIR=config-n-patch/latest-ossl-patch
 # OSSL_DIR=openssl
-DEBUG_MODE=YES
+DEBUG_MODE=NO
 
 SUDO=
 WHOAMI=$( whoami )
