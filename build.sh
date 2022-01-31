@@ -56,7 +56,7 @@ LIBPKI_DIR=libpki-oqs
 
 PATCH_DIR=config-n-patch/latest-ossl-patch
 # OSSL_DIR=openssl
-DEBUG_MODE=NO
+# DEBUG_MODE=YES
 
 SUDO=
 WHOAMI=$( whoami )
@@ -261,11 +261,11 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 	echo "--> Building LibPKI (Debug Mode: ${DEBUG_MODE})"
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
 		result=$(cd ${LIBPKI_DIR} && \
-		   	./configure --prefix=${DEST_DIR} --disable-ldap \
+		   	./configure --prefix=${DEST_DIR} --with-openssl-prefix=${DEST_DIR} --disable-ldap \
 		   	    --enable-composite --enable-oqs --disable-pg --disable-mysql )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
-		    ./configure --prefix=${DEST_DIR} --disable-ldap \
+		    ./configure --prefix=${DEST_DIR} --with-openssl-prefix=${DEST_DIR} --disable-ldap \
 		   		--enable-composite --enable-oqs --disable-pg --disable-mysql \
 					--enable-debug )
 	fi
