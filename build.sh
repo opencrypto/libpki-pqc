@@ -263,20 +263,19 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
 				--prefix=${DEST_DIR} \
-				--enable-extra-checks \ 
+				--enable-extra-checks \
 				--with-openssl-prefix=${DEST_DIR} \
 				--enable-composite --enable-oqs \
-				--disable-ldap --disable-pg --disable-mysql )
-		   	    
+				--disable-ldap --disable-pg --disable-mysql 2>&1 )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
 				--prefix=${DEST_DIR} \
-				--enable-extra-checks \ 
+				--enable-extra-checks \
 				--with-openssl-prefix=${DEST_DIR} \
 				--enable-composite --enable-oqs \
 				--disable-ldap --disable-pg --disable-mysql \
-				--enable-debug )
+				--enable-debug 2>&1 )
 	fi
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot build LibPKI (branch: libpki-oqs)!]"
