@@ -309,10 +309,14 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 		echo "    [SUCCESS: LibPKI (branch: libpki-oqs) successfully built]"
 	fi
 
-	echo "--> Consolidating lib and lib64 in the destination (${DEST_DIR}})"
-	[ -d ${DEST_DIR}/lib64 ] && ${SUDO} rm -r ${DEST_DIR}/lib64
-	[ -e ${DEST_DIR}/lib64 ] || ${SUDO} ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
-	echo "    [SUCCESS: Removed ${DEST_DIR}/lib64 and linked to ${DEST_DIR}/lib]"
+	if ! [ -h "${DEST_DIR}/lib64" ] ; then
+		echo "--> Consolidating lib and lib64 in the destination (${DEST_DIR}})"
+		[ -d ${DEST_DIR}/lib64 ] && ${SUDO} rm -r ${DEST_DIR}/lib64
+		[ -e ${DEST_DIR}/lib64 ] || ${SUDO} ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
+		echo "    [SUCCESS: Removed ${DEST_DIR}/lib64 and linked to ${DEST_DIR}/lib]"
+	else
+		echo "--> Libraries folders lib and lib64 already consolidated (${DEST_DIR}})"
+	fi
 
 	result=$(cd ${LIBPKI_DIR} && make && ${SUDO} make install 2>&1 )
 	if [ $? -gt 0 ] ; then
