@@ -2,7 +2,7 @@
 
 # Generates some classic keys
 openssl genrsa 2048 > rsa.key
-openssl ecparams -genkey -noout -curve prime256v1 -out ec.key
+openssl ecparam -genkey -noout -name prime256v1 -out ec.key
  
 # Generates some Post-Quantum keys
 openssl genpkey -algorithm falcon512 -out falcon.key
