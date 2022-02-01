@@ -68,6 +68,9 @@ NOW=$(date +%Y%m%d%H%M%S)
 # Get liboqs latest repo
 if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 
+	# More Info on LibOQS options can be found at
+	# https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs
+
 	# LibOQS
 	echo "--> Retrieving LibOQS package (${LIBOQS_VERSION}) ..."
 	result=$(curl -s "${LIBOQS_FULL_URL}" --output "${LIBOQS_OUTPUT}")
@@ -86,12 +89,31 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 	# Build the liboqs
 	[ -d "${LIBOQS_DIR}/build" ] || mkdir -p "${LIBOQS_DIR}/build"
 
+	# Release Build options
+	OQS_BUILD_OPTIONS="\
+	  -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
+	  -DBUILD_SHARED_LIBS=ON \
+	  -DCMAKE_BUILD_TYPE=Release \
+          -DOQS_BUILD_ONLY_LIB=ON \
+          -DOQS_DIST_BUILD=ON"
+
+	# Debug Build options
+	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
+	  OQS_BUILD_OPTIONS="\
+	    -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
+	    -DBUILD_SHARED_LIBS=ON \
+	    -DCMAKE_BUILD_TYPE=Debug \
+            -DOQS_BUILD_ONLY_LIB=OFF \
+            -DOQS_DIST_BUILD=OFF"
+	fi
+
 	# Execute the build
 	echo "--> Building LibOQS ${LIBOQS_VERSION} ..."
 
-	result=$(cd ${LIBOQS_DIR}/build && \
-	         cmake -DCMAKE_INSTALL_PREFIX=${DEST_DIR} -GNinja .. && \
-	         ninja && ${SUDO} ninja install)
+	result=$(cd ${LIBOQS_DIR}/build \
+		    && cmake ${OQS_BUILD_OPTIONS} -G Ninja .. \
+		    && ninja \
+		    && ${SUDO} ninja install)
 
 	if ! [ $? -eq 0 ] ; then
 	  echo "    [ERROR: Build failed with code $?]"
