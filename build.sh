@@ -29,7 +29,8 @@ GITHUB_ARCHIVE_TYPE=zip
 
 # LibOQS Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/liboqs/releases
-LIBOQS_VERSION=0.7.1
+# LIBOQS_VERSION=0.7.2
+LIBOQS_VERSION=0.7.2
 LIBOQS_BASE_URL=${GITHUB_BASE_URL}/liboqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBOQS_FULL_URL=${LIBOQS_BASE_URL}/${LIBOQS_VERSION}
 LIBOQS_OUTPUT=liboqs-${LIBOQS_VERSION}.${GITHUB_ARCHIVE_TYPE}
@@ -40,14 +41,14 @@ LIBOQS_DOCS_DIR=${LIBOQS_DIR}/docs
 
 # OpenSSL OQS Wrapper Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/openssl/releases
-OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
+# OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
+OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
 OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
 OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
-#
 LIBPKI_VERSION=main
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
@@ -171,36 +172,36 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
     # [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR)/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs ${OSSL_DIR}/include/oqs)
     [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR}/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs )
 
-    # Copies the crypto directories
-    echo "--> Copying Our Versions of the crypto layer ..."
-    cp -r ${PATCH_DIR}/crypto/composite ${OSSL_DIR}/crypto/ && \
-      cp -r ${PATCH_DIR}/crypto/oqs ${OSSL_DIR}/crypto/
+    # # Copies the crypto directories
+    # echo "--> Copying Our Versions of the crypto layer ..."
+    # cp -r ${PATCH_DIR}/crypto/composite ${OSSL_DIR}/crypto/ && \
+    #   cp -r ${PATCH_DIR}/crypto/oqs ${OSSL_DIR}/crypto/
 	
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot copy the our composite or oqs directories!]"
-		echo
-		echo "$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: successfully copied [composite] and [oqs] directories from ${PATCH_DIR}/crypto]"
-	fi
+	# if [ $? -gt 0 ] ; then
+	# 	echo "    [ERROR: Cannot copy the our composite or oqs directories!]"
+	# 	echo
+	# 	echo "$result"
+	# 	echo
+	# 	exit 1
+	# else
+	# 	echo "    [SUCCESS: successfully copied [composite] and [oqs] directories from ${PATCH_DIR}/crypto]"
+	# fi
 
-	# Execute the build
-	echo "--> Applying latest OSSL patch (${PATCH_DIR}) ..."
+	# # Execute the build
+	# echo "--> Applying latest OSSL patch (${PATCH_DIR}) ..."
 
-	# Apply the patch
-	# cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
-	cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1 && cd ..
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot apply our patch!]"
-		echo
-		# echo "$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: Patch applied with no rejections]"
-	fi
+	# # Apply the patch
+	# # cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
+	# cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1 && cd ..
+	# if [ $? -gt 0 ] ; then
+	# 	echo "    [ERROR: Cannot apply our patch!]"
+	# 	echo
+	# 	# echo "$result"
+	# 	echo
+	# 	exit 1
+	# else
+	# 	echo "    [SUCCESS: Patch applied with no rejections]"
+	# fi
 
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
@@ -285,19 +286,27 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
 				--prefix=${DEST_DIR} \
-				--enable-extra-checks \
 				--with-openssl-prefix=${DEST_DIR} \
-				--enable-composite --enable-oqs \
-				--disable-ldap --disable-pg --disable-mysql 2>&1 )
+				--enable-extra-checks \
+				--disable-ldap \
+				--disable-pg \
+				--disable-mysql \
+				--enable-composite \
+				--enable-oqs \
+				2>&1 )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
 				--prefix=${DEST_DIR} \
-				--enable-extra-checks \
 				--with-openssl-prefix=${DEST_DIR} \
-				--enable-composite --enable-oqs \
-				--disable-ldap --disable-pg --disable-mysql \
-				--enable-debug 2>&1 )
+				--enable-extra-checks \
+				--disable-ldap \
+				--disable-pg \
+				--disable-mysql \
+				--enable-composite \
+				--enable-oqs \
+				--enable-debug \
+				2>&1 )
 	fi
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot build LibPKI (branch: libpki-oqs)!]"
