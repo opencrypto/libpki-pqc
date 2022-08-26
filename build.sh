@@ -203,6 +203,22 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	# 	echo "    [SUCCESS: Patch applied with no rejections]"
 	# fi
 
+	# Apply The Fixes
+	for patch_file in ${PWD}/config-n-patch/liboqs-fixes/*.patch ; do
+		orig_name=$(echo $patch_file | sed 's|.*\/||' | sed 's|\.patch||')
+		echo "cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" )"
+		result=$(cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" 2>&1 && cd ..)
+		if [ $? -gt 0 ] ; then
+			echo "    [ERROR: Cannot apply our patch!]"
+			echo
+			echo "ERROR LOG:\n$result"
+			echo
+			exit 1
+		else
+			echo "    [SUCCESS: Patch applied with no rejections]"
+		fi
+	done
+
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
 	  options="--prefix=${DEST_DIR} -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
@@ -214,7 +230,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	echo "--> Configuring OpenSSL and Generating Crypto Objects ..."
 	result=$(cd ${OSSL_DIR} && ./config ${options} && \
 		LIBOQS_DOCS_DIR=../${LIBOQS_DOCS_DIR} python3 oqs-template/generate.py && \
-		make generate_crypto_objects && ./config ${options})
+		make generate_crypto_objects)
 
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot configure OpenSSL!]"

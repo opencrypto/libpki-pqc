@@ -1,0 +1,11 @@
+--- generate_oid_nid_table.py	2022-08-23 22:38:34.000000000 -0600
++++ generate_oid_nid_table.py.new	2022-08-26 13:39:00.000000000 -0600
+@@ -80,7 +80,7 @@
+         with open(os.path.join(root, fil), mode='r', encoding='utf-8') as f:
+            algyml = yaml.safe_load(f.read())
+         liboqs_kems[algyml['name']]=algyml
+-  liboqs_kems['SIDH']=liboqs_kems['SIKE']
++  # liboqs_kems['SIDH']=liboqs_kems['SIKE']
+   # TODO: Workaround for wrong upstream name for Kyber:
+   liboqs_kems['CRYSTALS-Kyber']=liboqs_kems['Kyber']
+ 
