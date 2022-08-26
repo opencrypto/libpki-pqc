@@ -49,7 +49,7 @@ OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
-LIBPKI_VERSION=main
+LIBPKI_VERSION=master
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
@@ -206,7 +206,6 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	# Apply The Fixes
 	for patch_file in ${PWD}/config-n-patch/liboqs-fixes/*.patch ; do
 		orig_name=$(echo $patch_file | sed 's|.*\/||' | sed 's|\.patch||')
-		echo "cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" )"
 		result=$(cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" 2>&1 && cd ..)
 		if [ $? -gt 0 ] ; then
 			echo "    [ERROR: Cannot apply our patch!]"
@@ -282,18 +281,18 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 	# Clears the directory, if it was forced
 	[ -d "${LIBPKI_DIR}" ] || rm -rf "${LIBPKI_DIR}"
 
-	echo "--> Cloning archive from github (repo: libpki, branch: libpki-oqs)"
+	echo "--> Cloning archive from github (repo: libpki, branch: ${LIBPKI_VERSION})"
 	if ! [ -d "${LIBPKI_DIR}" ] ; then
-		result=$( git clone -b libpki-oqs "https://github.com/openca/libpki.git" "${LIBPKI_DIR}" 2>&1 )
+		result=$(git clone -b ${LIBPKI_VERSION} "https://github.com/openca/libpki.git" "${LIBPKI_DIR}" 2>&1)
 	fi
 	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot clone LibPKI (branch: libpki-oqs)!]"
+		echo "    [ERROR: Cannot clone LibPKI (branch: ${LIBPKI_VERSION})!]"
 		echo
 		echo "$result"
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: LibPKI repo (branch: libpki-oqs) successfully cloned]"
+		echo "    [SUCCESS: LibPKI repo (branch:  ${LIBPKI_VERSION}) successfully cloned]"
 	fi
 
 	# Execute the build
@@ -325,13 +324,13 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 				2>&1 )
 	fi
 	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot build LibPKI (branch: libpki-oqs)!]"
+		echo "    [ERROR: Cannot build LibPKI (branch:  ${LIBPKI_VERSION})!]"
 		echo
 		echo "$result"
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: LibPKI (branch: libpki-oqs) successfully built]"
+		echo "    [SUCCESS: LibPKI (branch:  ${LIBPKI_VERSION}) successfully built]"
 	fi
 
 	if ! [ -h "${DEST_DIR}/lib64" ] ; then
@@ -345,13 +344,13 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 
 	result=$(cd ${LIBPKI_DIR} && make && ${SUDO} make install 2>&1 )
 	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot install LibPKI (branch: libpki-oqs) on ${DEST_DIR}]"
+		echo "    [ERROR: Cannot install LibPKI (branch: ${LIBPKI_VERSION}) on ${DEST_DIR}]"
 		echo
 		echo "$result"
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: LibPKI (branch: libpki-oqs) successfully installed on ${DEST_DIR}]"
+		echo "    [SUCCESS: LibPKI (branch: ${LIBPKI_VERSION}) successfully installed on ${DEST_DIR}]"
 	fi
 
 	cd ..
