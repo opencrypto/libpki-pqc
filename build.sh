@@ -24,6 +24,7 @@ RELEASE=2021-12-24-0002
 echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
 
 # Base GitHub URL
+OPENCA_BASE_URL=https://codeload.github.com/opencrypto
 GITHUB_BASE_URL=https://codeload.github.com/open-quantum-safe
 GITHUB_ARCHIVE_TYPE=zip
 
@@ -42,11 +43,15 @@ LIBOQS_DOCS_DIR=${LIBOQS_DIR}/docs
 # OpenSSL OQS Wrapper Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/openssl/releases
 # OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
-OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
-OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
+# OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
+OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-02
+# OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
+OSSL_BASE_URL=${OPENCA_BASE_URL}/openssl-oqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
-OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
-OSSL_DIR=openssl-${OSSL_VERSION}
+# OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
+# OSSL_DIR=openssl-${OSSL_VERSION}
+OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
+OSSL_DIR=openssl-oqs-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
 LIBPKI_VERSION=master
@@ -203,20 +208,36 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	# 	echo "    [SUCCESS: Patch applied with no rejections]"
 	# fi
 
-	# Apply The Fixes
-	for patch_file in ${PWD}/config-n-patch/liboqs-fixes/*.patch ; do
-		orig_name=$(echo $patch_file | sed 's|.*\/||' | sed 's|\.patch||')
-		result=$(cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" 2>&1 && cd ..)
-		if [ $? -gt 0 ] ; then
-			echo "    [ERROR: Cannot apply our patch!]"
-			echo
-			echo "ERROR LOG:\n$result"
-			echo
-			exit 1
-		else
-			echo "    [SUCCESS: Patch applied with no rejections]"
-		fi
-	done
+	# # Apply The Fixes
+	# for patch_file in ${PWD}/config-n-patch/liboqs-fixes/*.patch ; do
+	# 	orig_name=$(echo $patch_file | sed 's|.*\/||' | sed 's|\.patch||')
+	# 	result=$(cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" 2>&1 && cd ..)
+	# 	if [ $? -gt 0 ] ; then
+	# 		echo "    [ERROR: Cannot apply our patch!]"
+	# 		echo
+	# 		echo "ERROR LOG:\n$result"
+	# 		echo
+	# 		exit 1
+	# 	else
+	# 		echo "    [SUCCESS: Patch applied with no rejections]"
+	# 	fi
+	# done
+
+	# Creates a copy of the main OQS file
+	result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
+		cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
+
+	# Apply The Replacements
+	result=$(cp "config-n-patch/ossl-replace/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot replace oqs_meth.c!]"
+		echo
+		echo "ERROR LOG:\n$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
+	fi
 
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
