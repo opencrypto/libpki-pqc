@@ -1464,13 +1464,11 @@ static int pkey_oqs_digestsign(EVP_MD_CTX *ctx, unsigned char *sig,
 
     /* Debugging */
     if (do_hash_and_sign) {
-      fprintf(stderr, "[%s:%s] DEBUG: Hash-N-Sign with PQ (digest_len = %u)\n", __FILE__, __func__, digest_len);
       if (OQS_SIG_sign(oqs_key->s, sig + index, &oqs_sig_len, digest, digest_len, oqs_key->privkey) != OQS_SUCCESS) {
         ECerr(EC_F_PKEY_OQS_DIGESTSIGN, EC_R_SIGNING_FAILED);
         return 0;
       }
     } else {
-      fprintf(stderr, "[%s:%s] DEBUG: signing PQ without digest (tbslen = %zu)\n", __FILE__, __func__, tbslen);
       if (OQS_SIG_sign(oqs_key->s, sig + index, &oqs_sig_len, tbs, tbslen, oqs_key->privkey) != OQS_SUCCESS) {
         ECerr(EC_F_PKEY_OQS_DIGESTSIGN, EC_R_SIGNING_FAILED);
         return 0;
@@ -1522,9 +1520,8 @@ static int pkey_oqs_digestverify(EVP_MD_CTX *ctx, const unsigned char *sig,
       if (!EVP_Digest(tbs, tbslen, digest, &digest_len, classical_md, NULL)) {
         ECerr(EC_F_PKEY_OQS_DIGESTSIGN, ERR_R_FATAL);
         return 0;
-      };
+      }
 
-      fprintf(stderr, "INFO: Hash-N-Sign verify used %s\n", OBJ_nid2sn(EVP_MD_type(classical_md)));
     }
 
     if (is_hybrid) {
@@ -1589,14 +1586,12 @@ static int pkey_oqs_digestverify(EVP_MD_CTX *ctx, const unsigned char *sig,
 
     /* Signs the TBS or the Digest */
     if (do_hash_and_sign) {
-      fprintf(stderr, "DEBUG: Performing HASH-N-SIGN Verify\n") && fflush(stderr);
       /* Hash and Sign */
       if (OQS_SIG_verify(oqs_key->s, digest, digest_len, sig + index, siglen - classical_sig_len, oqs_key->pubkey) != OQS_SUCCESS) {
         ECerr(EC_F_PKEY_OQS_DIGESTVERIFY, EC_R_VERIFICATION_FAILED);
         return 0;
       }
     } else {
-      fprintf(stderr, "DEBUG: Performing Direct Verify\n") && fflush(stderr);
       /* Direct Sign */
       if (OQS_SIG_verify(oqs_key->s, tbs, tbslen, sig + index, siglen - classical_sig_len, oqs_key->pubkey) != OQS_SUCCESS) {
         ECerr(EC_F_PKEY_OQS_DIGESTVERIFY, EC_R_VERIFICATION_FAILED);
@@ -1647,8 +1642,6 @@ static int pkey_oqs_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
                                size_t *siglen, const unsigned char *tbs,
                                size_t tbslen)
 {
-
-  fprintf(stderr, "[%s:%s] DEBUG: pkey_oqs_sign() called\n", __FILE__, __func__) && fflush(stderr);
 
   const OQS_KEY *oqs_key = (OQS_KEY*) ctx->pkey->pkey.ptr;
   EVP_PKEY_CTX *classical_ctx_sign = NULL;
@@ -1745,8 +1738,6 @@ static int pkey_oqs_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
       index += classical_sig_len;
     }
 
-    fprintf(stderr, "[%s:%s] DEBUG: signing with OQS_SIG_sign() - tbslen: %zu\n", __FILE__, __func__, tbslen) && fflush(stderr);
-
     if (OQS_SIG_sign(oqs_key->s, sig + index, &oqs_sig_len, tbs, tbslen, oqs_key->privkey) != OQS_SUCCESS) {
       ECerr(EC_F_PKEY_OQS_DIGESTSIGN, EC_R_SIGNING_FAILED);
       return 0;
@@ -1798,8 +1789,6 @@ static int pkey_oqs_signctx_init (EVP_PKEY_CTX *ctx, EVP_MD_CTX *mctx) {
 
 static int pkey_oqs_signctx(EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *siglen, EVP_MD_CTX *mctx) {
 
-    fprintf(stderr, "[%s:%s] DEBUG: pkey_oqs_signctx() called (sig = %p)\n", __FILE__, __func__, sig) && fflush(stderr);
-
     OQS_KEY *oqs_key = (OQS_KEY*) EVP_MD_CTX_pkey_ctx(mctx)->pkey->pkey.ptr;
     unsigned char* tbs = NULL;
     unsigned int tbslen = 0;
@@ -1809,35 +1798,24 @@ static int pkey_oqs_signctx(EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *sigle
       // support any digest requested:
       tbslen = EVP_MD_CTX_size(oqs_key->digest);
 
-      if (oqs_key->digest == NULL) { // error; ctrl not called?
-        fprintf(stderr, "DEBUG: ERROR, the OQS MD was not initialized\n");
-        return 0;
-      }
+      // Checks if CTRL was properly called
+      if (oqs_key->digest == NULL) return 0;
 
-      if((tbs = (unsigned char *)OPENSSL_malloc(tbslen)) == NULL) {
-        fprintf(stderr, "DEBUG: ERROR, cannot allocate the output of the digest\n");
-        return 0;
-      }
+      // Output buffer allocation
+      if((tbs = (unsigned char *)OPENSSL_malloc(tbslen)) == NULL) return 0;
 
-      fprintf(stderr, "[%s:%s] DEBUG: finalizing the OQS key digest\n", __FILE__, __func__);
-
+      // Finalizes the Digest
       if(EVP_DigestFinal(oqs_key->digest, tbs, &tbslen) <= 0) {
         fprintf(stderr, "ERROR: cannot finalize the OQS key digest\n");
         return 0;
       }
     }
 
-    fprintf(stderr, "[%s:%s] DEBUG: calling the pkey_oqs_digestsign over %d bytes of data\n", 
+    // Debugging
+    fprintf(stderr, "[%s:%s] INFO: OQS METH: Calling digestsign over %d bytes of data\n", 
       __FILE__, __func__, tbslen);
 
-    fprintf(stderr, "[%s:%s] DEBUG: size of data to be signed is %d\n",
-      __FILE__, __func__, tbslen);
-
-    fprintf(stderr, "Data To Sign: ");
-      for (int i=0; i < tbslen; i++) {
-        fprintf(stderr, "%2.2x ", tbs[i]);
-    } fprintf(stderr, "\n");
-
+    // Calls the digestsign
     int ret = pkey_oqs_digestsign(mctx, sig, siglen, tbs, tbslen);
     if (sig != NULL) { // cleanup only if it's not the empty setup call
        OPENSSL_free(tbs);
@@ -1853,7 +1831,6 @@ static int pkey_oqs_signctx(EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *sigle
 }
 
 static int pkey_oqs_digestcustom(EVP_PKEY_CTX *ctx, EVP_MD_CTX *mctx) {
-    fprintf(stderr, "[%s:%s] DEBUG: pkey_oqs_digestcustom() called\n", __FILE__, __func__);
    return 1;
 }
 
