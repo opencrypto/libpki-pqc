@@ -223,12 +223,15 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	# 	fi
 	# done
 
+	# Base Directory for Patches
+	CURRENT_PATCH=20230326
+
 	# Creates a copy of the main OQS file
 	result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
 		cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
 
 	# Apply The Replacements
-	result=$(cp "config-n-patch/ossl-replace/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot replace oqs_meth.c!]"
 		echo
@@ -237,6 +240,22 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		exit 1
 	else
 		echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
+	fi
+
+	# Creates a copy of the crypto/objects/objects.txt
+	result=$([ -f "${OSSL_DIR}/crypto/objects/objects.txt.bak" ] || \
+		cp "${OSSL_DIR}/crypto/objects/objects.txt" "${OSSL_DIR}/crypto/objects/objects.txt.bak" 2>&1 )
+
+	# Applies the Replacements
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/objects.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot replace crypto/objects/objects.txt]"
+		echo
+		echo "ERROR LOG:\n$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: crypto/objects/objects.txt replaced successfully]"
 	fi
 
 	# Build options
