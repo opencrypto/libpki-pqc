@@ -258,6 +258,22 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo "    [SUCCESS: crypto/objects/objects.txt replaced successfully]"
 	fi
 
+	# Creates a copy of the crypto/objects/obj_xref.txt
+	result=$([ -f "${OSSL_DIR}/crypto/objects/obj_xref.txt.bak" ] || \
+		cp "${OSSL_DIR}/crypto/objects/obj_xref.txt" "${OSSL_DIR}/crypto/objects/obj_xref.txt.bak" 2>&1 )
+
+	# Applies the Replacements
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/obj_xref.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot replace crypto/objects/obj_xref.txt]"
+		echo
+		echo "ERROR LOG:\n$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: crypto/objects/obj_xref.txt replaced successfully]"
+	fi
+
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
 	  options="--prefix=${DEST_DIR} -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
