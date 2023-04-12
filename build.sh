@@ -296,6 +296,21 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo "    [SUCCESS: crypto/objects/obj_xref.txt replaced successfully]"
 	fi
 
+	# Rebuild the objects (to build the objects.h from objects.txt
+	# and obj_xref.h from obj_xref.txt)
+	echo "--> Re-Generating Crypto Objects ..."
+	result=$(cd ${OSSL_DIR} && make generate_crypto_objects)
+
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot configure OpenSSL!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: Successfully rebuilt the OpenSSL's objects]"
+	fi
+
 	# Execute the build
 	echo "--> Building OpenSSL (${OSSL_VERSION}) ..."
 
