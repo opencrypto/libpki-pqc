@@ -296,6 +296,21 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo "    [SUCCESS: crypto/objects/obj_xref.txt replaced successfully]"
 	fi
 
+	# Creates a copy of the crypto/objects/obj_xref.txt
+	result=$( cp "${OSSL_DIR}/crypto/rsa/rsa_local.h" "${OSSL_DIR}/crypto/rsa/rsa_local.h.bak" 2>&1 )
+
+	# Applies the Replacements
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/rsa_local.h" "${OSSL_DIR}/crypto/rsa/" 2>&1)
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot replace crypto/rsa/rsa_local.h]"
+		echo
+		echo "ERROR LOG:\n$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: crypto/rsa/rsa_local.h replaced successfully]"
+	fi
+
 	# Rebuild the objects (to build the objects.h from objects.txt
 	# and obj_xref.h from obj_xref.txt)
 	echo "--> Re-Generating Crypto Objects ..."
