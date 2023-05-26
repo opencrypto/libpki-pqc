@@ -55,7 +55,8 @@ OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-oqs-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
-LIBPKI_VERSION=master
+# LIBPKI_VERSION=master
+LIBPKI_VERSION=71-add-support-for-oqs-080
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
@@ -297,25 +298,25 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo "    [SUCCESS: crypto/rsa/rsa_local.h replaced successfully]"
 	fi
 
-	echo "Skipping OQS replacement for now ..."
+	# echo "Skipping OQS replacement for now ..."
 
-	# # Creates a copy of the main OQS file
-	# result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
-	# 	cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
+	# Creates a copy of the main OQS file
+	result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
+		cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
 
-	# # Apply The Replacements
-	# result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
-	# if [ $? -gt 0 ] ; then
-	# 	echo "    [ERROR: Cannot replace oqs_meth.c!]"
-	# 	echo
-	# 	echo "ERROR LOG:\n$result"
-	# 	echo
-	# 	exit 1
-	# else
-	# 	echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
-	# fi
+	# Apply The Replacements
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot replace oqs_meth.c!]"
+		echo
+		echo "ERROR LOG:\n$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
+	fi
 
-	echo "Please remember to re-enable OQS replacement in the script!"
+	# echo "Please remember to re-enable OQS replacement in the script!"
 
 	# Rebuild the objects (to build the objects.h from objects.txt
 	# and obj_xref.h from obj_xref.txt)
