@@ -19,7 +19,7 @@
 DEST_DIR=/opt/libpki-pqc
 
 # Release Information
-RELEASE=2021-12-24-0002
+RELEASE=2023-05-25-0001
 
 echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
 
@@ -55,8 +55,8 @@ OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-oqs-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
-# LIBPKI_VERSION=master
-LIBPKI_VERSION=71-add-support-for-oqs-080
+# LIBPKI_VERSION=71-add-support-for-oqs-080
+LIBPKI_VERSION=master
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
