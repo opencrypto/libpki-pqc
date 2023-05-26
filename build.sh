@@ -97,20 +97,24 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 
 	# Release Build options
 	OQS_BUILD_OPTIONS="\
-	  -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
 	  -DBUILD_SHARED_LIBS=ON \
 	  -DCMAKE_BUILD_TYPE=Release \
-          -DOQS_BUILD_ONLY_LIB=ON \
-          -DOQS_DIST_BUILD=ON"
+	  -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
+      -DOQS_BUILD_ONLY_LIB=OFF \
+      -DOQS_DIST_BUILD=ON \
+	  -DOQS_USE_OPENSSL=OFF \
+	  -DUSE_SANITIZER=OFF"
 
 	# Debug Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
 	  OQS_BUILD_OPTIONS="\
-	    -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
 	    -DBUILD_SHARED_LIBS=ON \
 	    -DCMAKE_BUILD_TYPE=Debug \
-            -DOQS_BUILD_ONLY_LIB=OFF \
-            -DOQS_DIST_BUILD=OFF"
+	    -DCMAKE_INSTALL_PREFIX='${DEST_DIR}' \
+        -DOQS_BUILD_ONLY_LIB=OFF \
+        -DOQS_DIST_BUILD=ON \
+		-DUSE_SANITIZER=OFF \
+		-DOQS_USE_OPENSSL=OFF"
 	fi
 
 	# Execute the build
