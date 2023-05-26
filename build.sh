@@ -31,7 +31,7 @@ GITHUB_ARCHIVE_TYPE=zip
 # LibOQS Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/liboqs/releases
 # LIBOQS_VERSION=0.7.2
-LIBOQS_VERSION=0.7.2
+LIBOQS_VERSION=0.8.0-rc1
 LIBOQS_BASE_URL=${GITHUB_BASE_URL}/liboqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBOQS_FULL_URL=${LIBOQS_BASE_URL}/${LIBOQS_VERSION}
 LIBOQS_OUTPUT=liboqs-${LIBOQS_VERSION}.${GITHUB_ARCHIVE_TYPE}
@@ -44,7 +44,8 @@ LIBOQS_DOCS_DIR=${LIBOQS_DIR}/docs
 # https://github.com/open-quantum-safe/openssl/releases
 # OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
 # OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
-OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-02
+# OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-02
+OSSL_VERSION=OQS_0_8_0_rc1-OpenSSL_1_1_1-snapshot-2023-05-25
 # OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_BASE_URL=${OPENCA_BASE_URL}/openssl-oqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
@@ -177,6 +178,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
     # [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR)/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs ${OSSL_DIR}/include/oqs)
     [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR}/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs )
 
+
     # # Copies the crypto directories
     # echo "--> Copying Our Versions of the crypto layer ..."
     # cp -r ${PATCH_DIR}/crypto/composite ${OSSL_DIR}/crypto/ && \
@@ -224,23 +226,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	# done
 
 	# Base Directory for Patches
-	CURRENT_PATCH=20230326
-
-	# Creates a copy of the main OQS file
-	result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
-		cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
-
-	# Apply The Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace oqs_meth.c!]"
-		echo
-		echo "ERROR LOG:\n$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
-	fi
+	CURRENT_PATCH=20230525
 
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
@@ -265,21 +251,21 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		echo "    [SUCCESS: OpenSSL successfully configured]"
 	fi
 
-	# Creates a copy of the crypto/objects/objects.txt
-	result=$([ -f "${OSSL_DIR}/crypto/objects/objects.txt.bak" ] || \
-		cp "${OSSL_DIR}/crypto/objects/objects.txt" "${OSSL_DIR}/crypto/objects/objects.txt.bak" 2>&1 )
+	# # Creates a copy of the crypto/objects/objects.txt
+	# result=$([ -f "${OSSL_DIR}/crypto/objects/objects.txt.bak" ] || \
+	# 	cp "${OSSL_DIR}/crypto/objects/objects.txt" "${OSSL_DIR}/crypto/objects/objects.txt.bak" 2>&1 )
 
-	# Applies the Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/objects.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace crypto/objects/objects.txt]"
-		echo
-		echo "ERROR LOG:\n$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: crypto/objects/objects.txt replaced successfully]"
-	fi
+	# # Applies the Replacements
+	# result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/objects.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
+	# if [ $? -gt 0 ] ; then
+	# 	echo "    [ERROR: Cannot replace crypto/objects/objects.txt]"
+	# 	echo
+	# 	echo "ERROR LOG:\n$result"
+	# 	echo
+	# 	exit 1
+	# else
+	# 	echo "    [SUCCESS: crypto/objects/objects.txt replaced successfully]"
+	# fi
 
 	# Creates a copy of the crypto/objects/obj_xref.txt
 	result=$( cp "${OSSL_DIR}/crypto/objects/obj_xref.txt" "${OSSL_DIR}/crypto/objects/obj_xref.txt.bak" 2>&1 )
@@ -310,6 +296,26 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	else
 		echo "    [SUCCESS: crypto/rsa/rsa_local.h replaced successfully]"
 	fi
+
+	echo "Skipping OQS replacement for now ..."
+
+	# # Creates a copy of the main OQS file
+	# result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
+	# 	cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
+
+	# # Apply The Replacements
+	# result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
+	# if [ $? -gt 0 ] ; then
+	# 	echo "    [ERROR: Cannot replace oqs_meth.c!]"
+	# 	echo
+	# 	echo "ERROR LOG:\n$result"
+	# 	echo
+	# 	exit 1
+	# else
+	# 	echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
+	# fi
+
+	echo "Please remember to re-enable OQS replacement in the script!"
 
 	# Rebuild the objects (to build the objects.h from objects.txt
 	# and obj_xref.h from obj_xref.txt)
