@@ -15,11 +15,11 @@
 # 	doxygen \
 # 	graphviz
 
+# Release Information
+RELEASE=2023-08-09-0001
+
 # Destination Directory
 DEST_DIR=/opt/libpki-pqc
-
-# Release Information
-RELEASE=2023-05-25-0001
 
 echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
 
@@ -31,7 +31,7 @@ GITHUB_ARCHIVE_TYPE=zip
 # LibOQS Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/liboqs/releases
 # LIBOQS_VERSION=0.7.2
-LIBOQS_VERSION=0.8.0-rc1
+LIBOQS_VERSION=0.8.0
 LIBOQS_BASE_URL=${GITHUB_BASE_URL}/liboqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBOQS_FULL_URL=${LIBOQS_BASE_URL}/${LIBOQS_VERSION}
 LIBOQS_OUTPUT=liboqs-${LIBOQS_VERSION}.${GITHUB_ARCHIVE_TYPE}
@@ -45,14 +45,17 @@ LIBOQS_DOCS_DIR=${LIBOQS_DIR}/docs
 # OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
 # OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
 # OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-02
-OSSL_VERSION=OQS_0_8_0_rc1-OpenSSL_1_1_1-snapshot-2023-05-25
-# OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
-OSSL_BASE_URL=${OPENCA_BASE_URL}/openssl-oqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
+# OSSL_VERSION=OQS_0_8_0_rc1-OpenSSL_1_1_1-snapshot-2023-05-25
+OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-07
+# https://github.com/open-quantum-safe/openssl/releases/tag/OQS-OpenSSL-1_1_1-stable-snapshot-2023-07
+# OSSL_BASE_URL=${OPENCA_BASE_URL}/openssl-oqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
+OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
+
 # OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 # OSSL_DIR=openssl-${OSSL_VERSION}
 OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
-OSSL_DIR=openssl-oqs-${OSSL_VERSION}
+OSSL_DIR=openssl-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
 # LIBPKI_VERSION=71-add-support-for-oqs-080
@@ -160,7 +163,7 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 		  echo "    [SUCCESS: Package Retrieved from ${OSSL_FULL_URL}]"
 		fi
 	
-		result=$(unzip "${OSSL_OUTPUT}")
+		result=$(unzip -q "${OSSL_OUTPUT}")
 	fi
 
 
@@ -450,4 +453,7 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 	# Exits if we only wanted this component installed
 	[ "x$1" = "x" ] || exit 0
 fi
+
+# Updates the release number
+echo -E -n "${RELEASE}" > ${DEST_DIR}/LIBPKI_RELEASE
 
