@@ -455,5 +455,5 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 fi
 
 # Updates the release number
-echo -E -n "${RELEASE}" > ${DEST_DIR}/LIBPKI_RELEASE
+# result=$( ${SUDO} echo -E -n "${RELEASE}" > "${DEST_DIR}/LIBPKI_PQC_RELEASE" )
 
