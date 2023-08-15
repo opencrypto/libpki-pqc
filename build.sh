@@ -69,9 +69,6 @@ OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
-# LIBPKI_VERSION=71-add-support-for-oqs-080
-# LIBPKI_VERSION=master
-LIBPKI_VERSION=75-update-test-infrastructure-and-openssl-3
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
