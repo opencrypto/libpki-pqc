@@ -17,11 +17,22 @@
 
 # Release Information
 RELEASE=2023-08-09-0001
+echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE})"
 
 # Destination Directory
 DEST_DIR=/opt/libpki-pqc
+if ! [ "x$1" = "x" ] ; then
+	DEST_DIR=$1
+fi
+echo "    * Using DEST_DIR=${DEST_DIR}"
 
-echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE}) ..."
+# LibPKI Branch Selection
+# LIBPKI_VERSION=master
+LIBPKI_VERSION=75-update-test-infrastructure-and-openssl-3
+if ! [ "x$2" = "x" ] ; then
+	LIBPKI_VERSION=$2
+fi
+echo "    * Using LIBPKI branch ... ${LIBPKI_VERSION}"
 
 # Base GitHub URL
 OPENCA_BASE_URL=https://codeload.github.com/opencrypto
@@ -59,7 +70,8 @@ OSSL_DIR=openssl-${OSSL_VERSION}
 
 # LibPKI Package - See the Release Page here:
 # LIBPKI_VERSION=71-add-support-for-oqs-080
-LIBPKI_VERSION=master
+# LIBPKI_VERSION=master
+LIBPKI_VERSION=75-update-test-infrastructure-and-openssl-3
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}

@@ -13,11 +13,15 @@ This is a quick tool we use to ease building LibPKI and OpenSSL w/ Open Quantum 
 
 To fetch and build the libraries and tools, you can run:
 ```
-$ ./build.sh
+$ ./build.sh [ DEST_DIR ] [ LIBPKI_BRANCH ]
 ```
-the script will fetch the liboqs repo and build that first. After installation it is the turn for the OQS OpenSSL's repo. After the openssl w/ OQS support is built and installed, the script fetches the libpki (libpki-oqs branch), builds it, and installs it in the same location.
+the script will fetch the liboqs repo and build that first. After installation it is the turn for the OQS OpenSSL's repo. After the openssl w/ OQS support is built and installed, the script fetches the libpki (libpki-oqs branch), builds it, and installs it in the same location. 
 
-All compiled software is installed in /opt/libpki-oqs.
+All compiled software will be installed in the directory that was specified (`DEST_DIR`). If not specified, the default
+installation directory is `/opt/libpki-oqs`.
+
+When the use of a specific branch from the LibPKI package is needed, you can specify any branch other than the default
+`master` to download, compile, and install the code from the selected branch.
 
 Please review the build.sh script and change the configuration there.
 
