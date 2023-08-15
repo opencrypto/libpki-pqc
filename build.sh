@@ -86,7 +86,7 @@ NOW=$(date +%Y%m%d%H%M%S)
 [ "$WHOAMI" = "root" ] || SUDO=sudo
 
 # Get liboqs latest repo
-if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
+if [ ! -d "${LIBOQS_DIR}" -o "$3" = "liboqs" ] ; then
 
 	# More Info on LibOQS options can be found at
 	# https://github.com/open-quantum-safe/liboqs/wiki/Customizing-liboqs
@@ -151,12 +151,12 @@ if [ ! -d "${LIBOQS_DIR}" -o "$1" = "liboqs" ] ; then
 	echo
 
 	# Exits if we only wanted this component installed
-	[ "x$1" = "x" ] || exit 0
+	[ "x$3" = "x" ] || exit 0
 fi
 
 
 # Fetch the latest openssl-liboqs branch
-if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
+if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 
 	# OpenSSL
 	if ! [ -f "${OSSL_OUTPUT}" ] ; then
@@ -376,11 +376,11 @@ if [ ! -d "${OSSL_DIR}" -o "$1" = "openssl" ] ; then
 	echo "    [SUCCESS: Archive Removed]"
 
 	# Exits if we only wanted this component installed
-	[ "x$1" = "x" ] || exit 0
+	[ "x$3" = "x" ] || exit 0
 fi
 
 # Fetch the latest openssl-liboqs branch
-if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
+if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 
 	# Clears the directory, if it was forced
 	[ -d "${LIBPKI_DIR}" ] || rm -rf "${LIBPKI_DIR}"
@@ -460,7 +460,7 @@ if [ ! -d "${LIBPKI_DIR}" -o "$1" = "libpki" ] ; then
 	cd ..
 
 	# Exits if we only wanted this component installed
-	[ "x$1" = "x" ] || exit 0
+	[ "x$3" = "x" ] || exit 0
 fi
 
 # Updates the release number
