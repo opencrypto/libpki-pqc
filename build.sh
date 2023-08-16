@@ -26,9 +26,10 @@ if ! [ "x$1" = "x" ] ; then
 fi
 echo "    * Using DEST_DIR=${DEST_DIR}"
 
-# LibPKI Branch Selection
-# LIBPKI_VERSION=master
-LIBPKI_VERSION=75-update-test-infrastructure-and-openssl-3
+# LibPKI Branch Selection (default: master)
+# example:
+#   LIBPKI_VERSION=75-update-test-infrastructure-and-openssl-3
+LIBPKI_VERSION=master
 if ! [ "x$2" = "x" ] ; then
 	LIBPKI_VERSION=$2
 fi
