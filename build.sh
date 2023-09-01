@@ -376,6 +376,12 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 	#       OpenSSL 3.x prevents the correct compilation
 	#       of the library on Linux
 
+	os=$(uname -s)
+	EXTRA_CHECKS="--enable-extra-checks"
+	if ! [ "x$os" = "xDarwin" ] ; then
+		EXTRA_CHECKS=
+	fi
+
 	# Execute the build
 	echo "--> Building LibPKI (Debug Mode: ${DEBUG_MODE})"
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
@@ -383,23 +389,23 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		   	./configure \
 				--prefix=${DEST_DIR} \
 				--with-openssl-prefix=${DEST_DIR} \
-				# --enable-extra-checks \
 				--disable-ldap \
 				--disable-pg \
 				--disable-mysql \
 				--enable-composite \
+				${EXTRA_CHECKS}
 				2>&1 )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
 				--prefix=${DEST_DIR} \
 				--with-openssl-prefix=${DEST_DIR} \
-				# --enable-extra-checks \
 				--disable-ldap \
 				--disable-pg \
 				--disable-mysql \
 				--enable-composite \
 				--enable-debug \
+				${EXTRA_CHECKS}
 				2>&1 )
 	fi
 	if [ $? -gt 0 ] ; then
