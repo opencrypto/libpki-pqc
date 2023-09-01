@@ -371,6 +371,11 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		echo "    [SUCCESS: LibPKI repo (branch:  ${LIBPKI_VERSION}) successfully cloned]"
 	fi
 
+	# NOTE: Disabling the --enable-extra-checks support
+	#       because of the deprecation of many functions in
+	#       OpenSSL 3.x prevents the correct compilation
+	#       of the library on Linux
+
 	# Execute the build
 	echo "--> Building LibPKI (Debug Mode: ${DEBUG_MODE})"
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
@@ -378,7 +383,7 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		   	./configure \
 				--prefix=${DEST_DIR} \
 				--with-openssl-prefix=${DEST_DIR} \
-				--enable-extra-checks \
+				# --enable-extra-checks \
 				--disable-ldap \
 				--disable-pg \
 				--disable-mysql \
@@ -389,7 +394,7 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		   	./configure \
 				--prefix=${DEST_DIR} \
 				--with-openssl-prefix=${DEST_DIR} \
-				--enable-extra-checks \
+				# --enable-extra-checks \
 				--disable-ldap \
 				--disable-pg \
 				--disable-mysql \
