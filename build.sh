@@ -16,11 +16,13 @@
 # 	graphviz
 
 # Release Information
-RELEASE=2023-08-09-0001
+RELEASE=2023-09-01-0001
+CURRENT_PATCH=20230901
+
 echo "--> LibPKI-PQC Build Script (Rel: ${RELEASE})"
 
 # Destination Directory
-DEST_DIR=/opt/libpki-pqc
+DEST_DIR=/opt/libpki-ossl3
 if ! [ "x$1" = "x" ] ; then
 	DEST_DIR=$1
 fi
@@ -36,15 +38,20 @@ fi
 echo "    * Using LIBPKI branch ... ${LIBPKI_VERSION}"
 
 # Base GitHub URL
-OPENCA_BASE_URL=https://codeload.github.com/opencrypto
-GITHUB_BASE_URL=https://codeload.github.com/open-quantum-safe
+GITHUB_BASE_URL=https://codeload.github.com
+OPENCA_GITHUB_BASE_URL=${GITHUB_BASE_URL}/openca
+OPENCRYPTO_GITHUB_BASE_URL=${GITHUB_BASE_URL}/opencrypto
+OQS_GITHUB_BASE_URL=${GITHUB_BASE_URL}/open-quantum-safe
+OSSL_GITHUB_BASE_URL=${GITHUB_BASE_URL}/openssl
+
+# Archive Type
 GITHUB_ARCHIVE_TYPE=zip
 
 # LibOQS Latest Packages - See the Release Page here:
 # https://github.com/open-quantum-safe/liboqs/releases
 # LIBOQS_VERSION=0.7.2
 LIBOQS_VERSION=0.8.0
-LIBOQS_BASE_URL=${GITHUB_BASE_URL}/liboqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
+LIBOQS_BASE_URL=${OQS_GITHUB_BASE_URL}/liboqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBOQS_FULL_URL=${LIBOQS_BASE_URL}/${LIBOQS_VERSION}
 LIBOQS_OUTPUT=liboqs-${LIBOQS_VERSION}.${GITHUB_ARCHIVE_TYPE}
 LIBOQS_DIR=liboqs-${LIBOQS_VERSION}
@@ -52,32 +59,29 @@ LIBOQS_DIR=liboqs-${LIBOQS_VERSION}
 # Required by OpenSSL LibOQS wrapper
 LIBOQS_DOCS_DIR=${LIBOQS_DIR}/docs
 
-# OpenSSL OQS Wrapper Latest Packages - See the Release Page here:
-# https://github.com/open-quantum-safe/openssl/releases
-# OSSL_VERSION=OQS-OpenSSL_1_1_1-stable-snapshot-2021-12-rc1
-# OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2022-08
-# OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-02
-# OSSL_VERSION=OQS_0_8_0_rc1-OpenSSL_1_1_1-snapshot-2023-05-25
-OSSL_VERSION=OQS-OpenSSL-1_1_1-stable-snapshot-2023-07
-# https://github.com/open-quantum-safe/openssl/releases/tag/OQS-OpenSSL-1_1_1-stable-snapshot-2023-07
-# OSSL_BASE_URL=${OPENCA_BASE_URL}/openssl-oqs/${GITHUB_ARCHIVE_TYPE}/refs/tags
-OSSL_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
+# OpenSSL Libraries
+OSSL_VERSION=openssl-3.1.2
+OSSL_BASE_URL=${OSSL_GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
-
-# OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
-# OSSL_DIR=openssl-${OSSL_VERSION}
-OSSL_OUTPUT=openssl-oqs-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
+OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-${OSSL_VERSION}
+
+# OpenCA's modified version of the OQS OpenSSL provider
+# 
+# Here we download the main code (not releases). Same ZIP file, but refs/heads
+# instead of refs/tags
+OQS_OSSL_PROV_VERSION=main
+OQS_OSSL_PROV_BASE_URL=${OPENCRYPTO_GITHUB_BASE_URL}/oca-oqsprovider/${GITHUB_ARCHIVE_TYPE}/refs/heads
+OQS_OSSL_PROV_FULL_URL=${OQS_OSSL_PROV_BASE_URL}/${OQS_OSSL_PROV_VERSION}
+OQS_OSSL_PROV_CLONE_URL=https://github.com/opencrypto/oca-oqsprovider.git
+OQS_OSSL_PROV_OUTPUT=${OQS_OSSL_PROV_VERSION}.${GITHUB_ARCHIVE_TYPE}
+OQS_OSSL_PROV_DIR=oca-oqsprovider-${OQS_OSSL_PROV_VERSION}
 
 # LibPKI Package - See the Release Page here:
 LIBPKI_BASE_URL=${GITHUB_BASE_URL}/openssl/${GITHUB_ARCHIVE_TYPE}/refs/tags
 LIBPKI_FULL_URL=${LIBPKI_BASE_URL}/${LIBPKI_VERSION}
 LIBPKI_OUTPUT=libpki-${LIBPKI_VERSION}.${GITHUB_ARCHIVE_TYPE}
 LIBPKI_DIR=libpki-${LIBPKI_VERSION}
-
-PATCH_DIR=config-n-patch/latest-ossl-patch
-# OSSL_DIR=openssl
-# DEBUG_MODE=YES
 
 SUDO=
 WHOAMI=$( whoami )
@@ -156,7 +160,7 @@ if [ ! -d "${LIBOQS_DIR}" -o "$3" = "liboqs" ] ; then
 fi
 
 
-# Fetch the latest openssl-liboqs branch
+# Fetch the latest openssl release (3.x)
 if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 
 	# OpenSSL
@@ -176,72 +180,6 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 		result=$(unzip -q "${OSSL_OUTPUT}")
 	fi
 
-
-	echo "--> Creating needed OQS links ..."
-	[ -e "${OSSL_DIR}/oqs" ] || $(cd ${OSSL_DIR} && ln -s ../${LIBOQS_DIR}/build oqs)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot create needed OQS/OpenSSL symlinks!]"
-		echo
-		echo "$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: QS/OpenSSL symlinks created successfully]"
-	fi
-
-    # [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR)/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs ${OSSL_DIR}/include/oqs)
-    [ -e "${OSSL_DIR}/include/oqs" ] || $(cd ${OSSL_DIR}/include && ln -s ../../${LIBOQS_DIR}/build/include/oqs )
-
-
-    # # Copies the crypto directories
-    # echo "--> Copying Our Versions of the crypto layer ..."
-    # cp -r ${PATCH_DIR}/crypto/composite ${OSSL_DIR}/crypto/ && \
-    #   cp -r ${PATCH_DIR}/crypto/oqs ${OSSL_DIR}/crypto/
-	
-	# if [ $? -gt 0 ] ; then
-	# 	echo "    [ERROR: Cannot copy the our composite or oqs directories!]"
-	# 	echo
-	# 	echo "$result"
-	# 	echo
-	# 	exit 1
-	# else
-	# 	echo "    [SUCCESS: successfully copied [composite] and [oqs] directories from ${PATCH_DIR}/crypto]"
-	# fi
-
-	# # Execute the build
-	# echo "--> Applying latest OSSL patch (${PATCH_DIR}) ..."
-
-	# # Apply the patch
-	# # cd ${OSSL_DIR} && git apply -p1 < ../${PATCH_DIR}/openssl.patch 2>&1
-	# cd ${OSSL_DIR} && patch -p1 < ../${PATCH_DIR}/openssl.patch 2>&1 && cd ..
-	# if [ $? -gt 0 ] ; then
-	# 	echo "    [ERROR: Cannot apply our patch!]"
-	# 	echo
-	# 	# echo "$result"
-	# 	echo
-	# 	exit 1
-	# else
-	# 	echo "    [SUCCESS: Patch applied with no rejections]"
-	# fi
-
-	# # Apply The Fixes
-	# for patch_file in ${PWD}/config-n-patch/liboqs-fixes/*.patch ; do
-	# 	orig_name=$(echo $patch_file | sed 's|.*\/||' | sed 's|\.patch||')
-	# 	result=$(cd ${OSSL_DIR}/oqs-template && patch -p0 < "${patch_file}" 2>&1 && cd ..)
-	# 	if [ $? -gt 0 ] ; then
-	# 		echo "    [ERROR: Cannot apply our patch!]"
-	# 		echo
-	# 		echo "ERROR LOG:\n$result"
-	# 		echo
-	# 		exit 1
-	# 	else
-	# 		echo "    [SUCCESS: Patch applied with no rejections]"
-	# 	fi
-	# done
-
-	# Base Directory for Patches
-	CURRENT_PATCH=20230525
-
 	# Build options
 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
 	  options="--prefix=${DEST_DIR} -d -shared -no-asm -g3 -ggdb -gdwarf-4 -fno-inline -O0 -fno-omit-frame-pointer"
@@ -251,9 +189,7 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 
 	# Configure OpenSSL
 	echo "--> Configuring OpenSSL and Generating Crypto Objects ..."
-	result=$(cd ${OSSL_DIR} && ./config ${options} && \
-		LIBOQS_DOCS_DIR=../${LIBOQS_DOCS_DIR} python3 oqs-template/generate.py && \
-		make generate_crypto_objects)
+	result=$( cd ${OSSL_DIR} && ./config ${options} 2>&1 )
 
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot configure OpenSSL!]"
@@ -265,95 +201,27 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 		echo "    [SUCCESS: OpenSSL successfully configured]"
 	fi
 
-	# # Creates a copy of the crypto/objects/objects.txt
-	# result=$([ -f "${OSSL_DIR}/crypto/objects/objects.txt.bak" ] || \
-	# 	cp "${OSSL_DIR}/crypto/objects/objects.txt" "${OSSL_DIR}/crypto/objects/objects.txt.bak" 2>&1 )
-
-	# # Applies the Replacements
-	# result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/objects.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
-	# if [ $? -gt 0 ] ; then
-	# 	echo "    [ERROR: Cannot replace crypto/objects/objects.txt]"
-	# 	echo
-	# 	echo "ERROR LOG:\n$result"
-	# 	echo
-	# 	exit 1
-	# else
-	# 	echo "    [SUCCESS: crypto/objects/objects.txt replaced successfully]"
-	# fi
-
-	# Creates a copy of the crypto/objects/obj_xref.txt
-	result=$( cp "${OSSL_DIR}/crypto/objects/obj_xref.txt" "${OSSL_DIR}/crypto/objects/obj_xref.txt.bak" 2>&1 )
-
 	# Applies the Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/obj_xref.txt" "${OSSL_DIR}/crypto/objects/" 2>&1)
+	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/rsa.h" "${OSSL_DIR}/include/crypto/" 2>&1)
 	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace crypto/objects/obj_xref.txt]"
+		echo "    [ERROR: Cannot replace include/crypto/rsa.h]"
 		echo
 		echo "ERROR LOG:\n$result"
 		echo
 		exit 1
 	else
-		echo "    [SUCCESS: crypto/objects/obj_xref.txt replaced successfully]"
-	fi
-
-	# Creates a copy of the crypto/objects/obj_xref.txt
-	result=$( cp "${OSSL_DIR}/crypto/rsa/rsa_local.h" "${OSSL_DIR}/crypto/rsa/rsa_local.h.bak" 2>&1 )
-
-	# Applies the Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/rsa_local.h" "${OSSL_DIR}/crypto/rsa/" 2>&1)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace crypto/rsa/rsa_local.h]"
-		echo
-		echo "ERROR LOG:\n$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: crypto/rsa/rsa_local.h replaced successfully]"
-	fi
-
-	# echo "Skipping OQS replacement for now ..."
-
-	# Creates a copy of the main OQS file
-	result=$([ -f "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" ] || \
-		cp "${OSSL_DIR}/crypto/ec/oqs_meth.c" "${OSSL_DIR}/crypto/ec/oqs_meth.c.bak" 2>&1 )
-
-	# Apply The Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/oqs_meth.c" "${OSSL_DIR}/crypto/ec/" 2>&1)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace oqs_meth.c!]"
-		echo
-		echo "ERROR LOG:\n$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: crypto/ec/oqs_meth.c replaced successfully]"
-	fi
-
-	# echo "Please remember to re-enable OQS replacement in the script!"
-
-	# Rebuild the objects (to build the objects.h from objects.txt
-	# and obj_xref.h from obj_xref.txt)
-	echo "--> Re-Generating Crypto Objects ..."
-	result=$(cd ${OSSL_DIR} && make generate_crypto_objects)
-
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot configure OpenSSL!]"
-		echo
-		echo "$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: Successfully rebuilt the OpenSSL's objects]"
+		echo "    [SUCCESS: include/crypto/rsa.h replaced successfully]"
 	fi
 
 	# Execute the build
 	echo "--> Building OpenSSL (${OSSL_VERSION}) ..."
 
 	# Let's now build the OpenSSL library
-	result=$(cd ${OSSL_DIR} && make build_libs 2>&1 )
+	result=$(cd ${OSSL_DIR} && make build_libs 2>&1 >ossl_build_log.txt )
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot build OpenSSL!]"
 		echo
+		echo "This is my first script"
 		echo "$result"
 		echo
 		exit 1
@@ -362,7 +230,7 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 	fi
 
 	# Let's now build the OpenSSL library
-	result=$(cd ${OSSL_DIR} && ${SUDO} make install_sw 2>&1 )
+	result=$(cd ${OSSL_DIR} && ${SUDO} make install_sw 2>&1 >ossl_install_log.txt )
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot install OpenSSL!]"
 		echo
@@ -374,6 +242,109 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 	fi
 	echo "--> Removing Compressed Archive (${OSSL_OUTPUT})"
 	rm "${OSSL_OUTPUT}"
+	echo "    [SUCCESS: Archive Removed]"
+
+	# Exits if we only wanted this component installed
+	[ "x$3" = "x" ] || exit 0
+fi
+
+# Fetch the OCA oqsprovider
+if [ ! -d "${OQS_OSSL_PROV_DIR}" -o "$3" = "oqsprovider" ] ; then
+
+	# # OCA oqsprovider - download process uses the same as releases
+	# #
+	# # Use this approach for ease-of-use with releases (instead of cloning repos)
+	# if ! [ -f "${OQS_OSSL_PROV_OUTPUT}" ] ; then
+	# 	echo "--> Retrieving OQS Provider package (${OQS_OSSL_PROV_VERSION}) ..."
+	# 	result=$(curl -s "${OQS_OSSL_PROV_FULL_URL}" --output "${OQS_OSSL_PROV_OUTPUT}")
+	# 	if [ $? -gt 0 ] ; then
+	# 	  echo "    [ERROR: Cannot access ${OQS_OSSL_PROV_FULL_URL}]"
+	# 	  echo
+	# 	  echo "--> Error Logs Follows:"
+	# 	  echo "$result"
+	# 	  exit 1
+	# 	else
+	# 	  echo "    [SUCCESS: Package Retrieved from ${OQS_OSSL_PROV_FULL_URL}]"
+	# 	fi
+	
+	# 	result=$(unzip -q "${OQS_OSSL_PROV_OUTPUT}")
+	# 	if [ $? -gt 0 ] ; then
+	# 	  echo "    [ERROR: Cannot unzip ${OQS_OSSL_PROV_OUTPUT}]"
+	# 	  echo
+	# 	  echo "--> Error Logs Follows:"
+	# 	  echo "$result"
+	# 	  exit 1
+	# 	else
+	# 	  echo "    [SUCCESS: Package Unzipped correctly from ${OQS_OSSL_PROV_OUTPUT}]"
+	# 	fi
+	# fi
+
+	# OCA oqsprovider - download process uses clone of repos
+	#
+	# Use this approach to be able to contribute back to the repo (development)
+	echo "--> Cloning archive from github (repo: oca-oqsprovider, branch: ${OQS_OSSL_PROV_VERSION})"
+	if ! [ -d "${OQS_OSSL_PROV_DIR}" ] ; then
+		result=$( git clone -b ${OQS_OSSL_PROV_VERSION} "${OQS_OSSL_PROV_CLONE_URL}" "${OQS_OSSL_PROV_DIR}" 2>&1 )
+	fi
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot clone LibPKI (branch: ${LIBPKI_VERSION})!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: LibPKI repo (branch:  ${LIBPKI_VERSION}) successfully cloned]"
+	fi
+
+	# Build options
+	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
+	  options="-DOPENSSL_ROOT_DIR=/opt/libpki-ossl3 -DCMAKE_BUILD_TYPE=Debug -S . -B _build"
+	else
+	  options="-DOPENSSL_ROOT_DIR=/opt/libpki-ossl3 -DCMAKE_BUILD_TYPE=Release -S . -B _build"
+	fi
+
+	# Configure OQS Provider
+	echo "--> Configuring OCA oqsprovider ..."
+	result=$( cd ${OQS_OSSL_PROV_DIR} && liboqs_DIR=/opt/libpki-ossl3 cmake ${options} 2>&1 )
+
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot configure OCA oqsprovider (${OQS_OSSL_PROV_FULL_URL})!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: OCA oqsprovider successfully configured]"
+	fi
+
+	# Execute the build
+	echo "--> Building OCA oqsprovider (${OQS_OSSL_PROV_VERSION}) ..."
+
+	# Let's now build the OpenSSL library
+	result=$( cd ${OQS_OSSL_PROV_DIR} && cmake --build _build 2>&1 )
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot build OCA oqsprovider!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: OCA oqsprovider successfully built]"
+	fi
+
+	# Let's now build the OpenSSL library
+	result=$( cd ${OQS_OSSL_PROV_DIR} && ${SUDO} cmake --install _build 2>&1 )
+	if [ $? -gt 0 ] ; then
+		echo "    [ERROR: Cannot install OCA oqsprovider!]"
+		echo
+		echo "$result"
+		echo
+		exit 1
+	else
+		echo "    [SUCCESS: OCA oqsprovider successfully installed on ${DEST_DIR}]"
+	fi
+	echo "--> Removing Compressed Archive (${OQS_OSSL_PROV_OUTPUT})"
+	[ -f "${OQS_OSSL_PROV_OUTPUT}" ] && rm "${OQS_OSSL_PROV_OUTPUT}"
 	echo "    [SUCCESS: Archive Removed]"
 
 	# Exits if we only wanted this component installed
@@ -412,7 +383,6 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 				--disable-pg \
 				--disable-mysql \
 				--enable-composite \
-				--enable-oqs \
 				2>&1 )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
@@ -424,7 +394,6 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 				--disable-pg \
 				--disable-mysql \
 				--enable-composite \
-				--enable-oqs \
 				--enable-debug \
 				2>&1 )
 	fi
@@ -447,7 +416,9 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		echo "--> Libraries folders lib and lib64 already consolidated (${DEST_DIR}})"
 	fi
 
-	result=$(cd ${LIBPKI_DIR} && make && ${SUDO} make install 2>&1 )
+	result=$( cd ${LIBPKI_DIR} && \
+		make 2>&1 > libpki_build_log.txt && \
+		${SUDO} make install 2>&1 > libpki_install_log.txt )
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot install LibPKI (branch: ${LIBPKI_VERSION}) on ${DEST_DIR}]"
 		echo
