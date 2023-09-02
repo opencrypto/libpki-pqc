@@ -156,7 +156,7 @@ if [ ! -d "${LIBOQS_DIR}" -o "$3" = "liboqs" ] ; then
 	echo
 
 	# Exits if we only wanted this component installed
-	[ "x$3" = "x" ] || exit 0
+	[ "x$3" = "xliboqs" ] && exit 0
 fi
 
 
@@ -245,7 +245,7 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 	echo "    [SUCCESS: Archive Removed]"
 
 	# Exits if we only wanted this component installed
-	[ "x$3" = "x" ] || exit 0
+	[ "x$3" = "xopenssl" ] && exit 0
 fi
 
 # Fetch the OCA oqsprovider
@@ -348,7 +348,7 @@ if [ ! -d "${OQS_OSSL_PROV_DIR}" -o "$3" = "oqsprovider" ] ; then
 	echo "    [SUCCESS: Archive Removed]"
 
 	# Exits if we only wanted this component installed
-	[ "x$3" = "x" ] || exit 0
+	[ "x$3" = "xoqsprovider" ] && exit 0
 fi
 
 # Fetch the latest openssl-liboqs branch
@@ -443,9 +443,10 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 	cd ..
 
 	# Exits if we only wanted this component installed
-	[ "x$3" = "x" ] || exit 0
+	[ "x$3" = "xlibpki" ] && exit 0
 fi
 
 # Updates the release number
 # result=$( ${SUDO} echo -E -n "${RELEASE}" > "${DEST_DIR}/LIBPKI_PQC_RELEASE" )
 
+exit 0
