@@ -8,4 +8,5 @@
 export DEBUG_MODE=YES
 
 # Executes the build
-./build.sh $@
+./build.sh "$1" "$2" "$3" "$4" "$5"
+

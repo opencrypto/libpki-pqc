@@ -159,6 +159,16 @@ if [ ! -d "${LIBOQS_DIR}" -o "$3" = "liboqs" ] ; then
 	[ "x$3" = "xliboqs" ] && exit 0
 fi
 
+# Consolidate the lib directory, ossl3 seems to change the default destination
+# of OpenSSL from lib to lib64
+if ! [ -h "${DEST_DIR}/lib64" ] ; then
+	echo "--> Consolidating lib and lib64 in the destination (${DEST_DIR}})"
+	[ -d ${DEST_DIR}/lib64 ] && ${SUDO} rm -r ${DEST_DIR}/lib64
+	[ -e ${DEST_DIR}/lib64 ] || ${SUDO} ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
+	echo "    [SUCCESS: Removed ${DEST_DIR}/lib64 and linked to ${DEST_DIR}/lib]"
+else
+	echo "--> Libraries folders lib and lib64 already consolidated (${DEST_DIR}})"
+fi
 
 # Fetch the latest openssl release (3.x)
 if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
@@ -416,15 +426,6 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		exit 1
 	else
 		echo "    [SUCCESS: LibPKI (branch:  ${LIBPKI_VERSION}) successfully built]"
-	fi
-
-	if ! [ -h "${DEST_DIR}/lib64" ] ; then
-		echo "--> Consolidating lib and lib64 in the destination (${DEST_DIR}})"
-		[ -d ${DEST_DIR}/lib64 ] && ${SUDO} rm -r ${DEST_DIR}/lib64
-		[ -e ${DEST_DIR}/lib64 ] || ${SUDO} ln -s ${DEST_DIR}/lib ${DEST_DIR}/lib64
-		echo "    [SUCCESS: Removed ${DEST_DIR}/lib64 and linked to ${DEST_DIR}/lib]"
-	else
-		echo "--> Libraries folders lib and lib64 already consolidated (${DEST_DIR}})"
 	fi
 
 	result=$( cd ${LIBPKI_DIR} && \
