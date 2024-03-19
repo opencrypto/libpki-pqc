@@ -513,32 +513,29 @@ if [ ! -d "${LIBPKI_DIR}" -o "$3" = "libpki" ] ; then
 		EXTRA_CHECKS=
 	fi
 
+	LIBPKI_COMMON_PARAMS="\
+		--prefix=${PRJ_DEST_DIR} \
+		--with-openssl-prefix=${PRJ_DEST_DIR} \
+		--disable-composite \
+		--enable-ocsprov \
+		--enable-oqsprov \
+		${EXTRA_CHECKS}"
+	
 	# Execute the build
 	echo "--> Building LibPKI (Debug Mode: ${DEBUG_MODE})"
 	if [ "${DEBUG_MODE}" = "NO" ] ; then
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
-				--prefix=${PRJ_DEST_DIR} \
-				--with-openssl-prefix=${PRJ_DEST_DIR} \
-				--disable-ldap \
-				--disable-pg \
-				--disable-mysql \
-				--enable-composite \
-				${EXTRA_CHECKS}
+				${LIBPKI_COMMON_PARAMS}
 				2>&1 )
 	else
 		result=$(cd ${LIBPKI_DIR} && \
 		   	./configure \
-				--prefix=${PRJ_DEST_DIR} \
-				--with-openssl-prefix=${PRJ_DEST_DIR} \
-				--disable-ldap \
-				--disable-pg \
-				--disable-mysql \
-				--enable-composite \
+				${LIBPKI_COMMON_PARAMS} \
 				--enable-debug \
-				${EXTRA_CHECKS}
 				2>&1 )
 	fi
+	
 	if [ $? -gt 0 ] ; then
 		echo "    [ERROR: Cannot build LibPKI (branch:  ${LIBPKI_VERSION})!]"
 		echo
