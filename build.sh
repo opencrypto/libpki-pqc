@@ -72,29 +72,29 @@ OSSL_FULL_URL=${OSSL_BASE_URL}/${OSSL_VERSION}
 OSSL_OUTPUT=openssl-${OSSL_VERSION}.${GITHUB_ARCHIVE_TYPE}
 OSSL_DIR=openssl-${OSSL_VERSION}
 
-# OpenCA's modified version of the OQS OpenSSL provider
-# 
-# Here we download the main code (not releases). Same ZIP file, but refs/heads
-# instead of refs/tags
-OQS_OSSL_PROV_VERSION=main
-OQS_OSSL_PROV_BASE_URL=${OPENCRYPTO_GITHUB_BASE_URL}/oca-oqsprovider/${GITHUB_ARCHIVE_TYPE}/refs/heads
-OQS_OSSL_PROV_FULL_URL=${OQS_OSSL_PROV_BASE_URL}/${OQS_OSSL_PROV_VERSION}
-OQS_OSSL_PROV_CLONE_URL=https://github.com/opencrypto/oca-oqsprovider.git
-OQS_OSSL_PROV_OUTPUT=${OQS_OSSL_PROV_VERSION}.${GITHUB_ARCHIVE_TYPE}
-OQS_OSSL_PROV_DIR=oca-oqsprovider-${OQS_OSSL_PROV_VERSION}
-USE_OSSL_PROVIDER=NO
+# # OpenCA's modified version of the OQS OpenSSL provider
+# # 
+# # Here we download the main code (not releases). Same ZIP file, but refs/heads
+# # instead of refs/tags
+# OQS_OSSL_PROV_VERSION=main
+# OQS_OSSL_PROV_BASE_URL=${OPENCRYPTO_GITHUB_BASE_URL}/oca-oqsprovider/${GITHUB_ARCHIVE_TYPE}/refs/heads
+# OQS_OSSL_PROV_FULL_URL=${OQS_OSSL_PROV_BASE_URL}/${OQS_OSSL_PROV_VERSION}
+# OQS_OSSL_PROV_CLONE_URL=https://github.com/opencrypto/oca-oqsprovider.git
+# OQS_OSSL_PROV_OUTPUT=${OQS_OSSL_PROV_VERSION}.${GITHUB_ARCHIVE_TYPE}
+# OQS_OSSL_PROV_DIR=oca-oqsprovider-${OQS_OSSL_PROV_VERSION}
+# USE_OSSL_PROVIDER=NO
 
-# OpenCA's modified version of the OQS OpenSSL provider
-# 
-# Here we download the main code (not releases). Same ZIP file, but refs/heads
-# instead of refs/tags
-OQS_OCA_PROV_VERSION=main
-OQS_OCA_PROV_BASE_URL=${OPENCRYPTO_GITHUB_BASE_URL}/oca-oqsprovider/${GITHUB_ARCHIVE_TYPE}/refs/heads
-OQS_OCA_PROV_FULL_URL=${OQS_OCA_PROV_BASE_URL}/${OQS_OCA_PROV_VERSION}
-OQS_OCA_PROV_CLONE_URL=https://github.com/opencrypto/oca-oqsprovider.git
-OQS_OCA_PROV_OUTPUT=${OQS_OCA_PROV_VERSION}.${GITHUB_ARCHIVE_TYPE}
-OQS_OCA_PROV_DIR=oca-oqsprovider-${OQS_OCA_PROV_VERSION}
-USE_OCA_PROVIDER=NO
+# # OpenCA's modified version of the OQS OpenSSL provider
+# # 
+# # Here we download the main code (not releases). Same ZIP file, but refs/heads
+# # instead of refs/tags
+# OQS_OCA_PROV_VERSION=main
+# OQS_OCA_PROV_BASE_URL=${OPENCRYPTO_GITHUB_BASE_URL}/oca-oqsprovider/${GITHUB_ARCHIVE_TYPE}/refs/heads
+# OQS_OCA_PROV_FULL_URL=${OQS_OCA_PROV_BASE_URL}/${OQS_OCA_PROV_VERSION}
+# OQS_OCA_PROV_CLONE_URL=https://github.com/opencrypto/oca-oqsprovider.git
+# OQS_OCA_PROV_OUTPUT=${OQS_OCA_PROV_VERSION}.${GITHUB_ARCHIVE_TYPE}
+# OQS_OCA_PROV_DIR=oca-oqsprovider-${OQS_OCA_PROV_VERSION}
+# USE_OCA_PROVIDER=NO
 
 # Entrust OQS Provider
 #
@@ -252,17 +252,17 @@ if [ ! -d "${OSSL_DIR}" -o "$3" = "openssl" ] ; then
 		echo "    [SUCCESS: OpenSSL successfully configured]"
 	fi
 
-	# Applies the Replacements
-	result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/rsa.h" "${OSSL_DIR}/include/crypto/" 2>&1)
-	if [ $? -gt 0 ] ; then
-		echo "    [ERROR: Cannot replace include/crypto/rsa.h]"
-		echo
-		echo "ERROR LOG:\n$result"
-		echo
-		exit 1
-	else
-		echo "    [SUCCESS: include/crypto/rsa.h replaced successfully]"
-	fi
+	# # Applies the Replacements
+	# result=$(cp "config-n-patch/ossl-replace/${CURRENT_PATCH}/rsa.h" "${OSSL_DIR}/include/crypto/" 2>&1)
+	# if [ $? -gt 0 ] ; then
+	# 	echo "    [ERROR: Cannot replace include/crypto/rsa.h]"
+	# 	echo
+	# 	echo "ERROR LOG:\n$result"
+	# 	echo
+	# 	exit 1
+	# else
+	# 	echo "    [SUCCESS: include/crypto/rsa.h replaced successfully]"
+	# fi
 
 	# Execute the build
 	echo "--> Building OpenSSL (${OSSL_VERSION}) ..."
@@ -340,75 +340,75 @@ if [ ! -d "${OQS_OSSL_PROV_DIR}" -o "$3" = "oqsprovider" ] ; then
 		fi
 	fi
 
-	if [ "x${USE_OCA_PROVIDER}" = "xYES" ] ; then
-		# OCA oqsprovider - download process uses clone of repos
-		#
-		# Use this approach to be able to contribute back to the repo (development)
-		echo "--> Cloning archive from github (repo: oca-oqsprovider, branch: ${OQS_OCA_PROV_VERSION})"
-		if ! [ -d "${OQS_OCA_PROV_DIR}" ] ; then
-			result=$( git clone -b ${OQS_OCA_PROV_VERSION} "${OQS_OCA_PROV_CLONE_URL}" "${OQS_OCA_PROV_DIR}" 2>&1 )
-		fi
-		if [ $? -gt 0 ] ; then
-			echo "    [ERROR: Cannot clone original OQS provider (branch: ${OQS_OCA_PROV_VERSION})!]"
-			echo
-			echo "$result"
-			echo
-			exit 1
-		else
-			echo "    [SUCCESS: OQS original provider repo (branch:  ${OQS_OCA_PROV_VERSION}) successfully cloned]"
-		fi
+	# if [ "x${USE_OCA_PROVIDER}" = "xYES" ] ; then
+	# 	# OCA oqsprovider - download process uses clone of repos
+	# 	#
+	# 	# Use this approach to be able to contribute back to the repo (development)
+	# 	echo "--> Cloning archive from github (repo: oca-oqsprovider, branch: ${OQS_OCA_PROV_VERSION})"
+	# 	if ! [ -d "${OQS_OCA_PROV_DIR}" ] ; then
+	# 		result=$( git clone -b ${OQS_OCA_PROV_VERSION} "${OQS_OCA_PROV_CLONE_URL}" "${OQS_OCA_PROV_DIR}" 2>&1 )
+	# 	fi
+	# 	if [ $? -gt 0 ] ; then
+	# 		echo "    [ERROR: Cannot clone original OQS provider (branch: ${OQS_OCA_PROV_VERSION})!]"
+	# 		echo
+	# 		echo "$result"
+	# 		echo
+	# 		exit 1
+	# 	else
+	# 		echo "    [SUCCESS: OQS original provider repo (branch:  ${OQS_OCA_PROV_VERSION}) successfully cloned]"
+	# 	fi
 
-		# Build options
-		if [ "x${DEBUG_MODE}" = "xYES" ] ; then
-			options="-DOPENSSL_ROOT_DIR=${PRJ_DEST_DIR} -DCMAKE_BUILD_TYPE=Debug -S . -B _build"
-		else
-			options="-DOPENSSL_ROOT_DIR=${PRJ_DEST_DIR} -DCMAKE_BUILD_TYPE=Release -S . -B _build"
-		fi
+	# 	# Build options
+	# 	if [ "x${DEBUG_MODE}" = "xYES" ] ; then
+	# 		options="-DOPENSSL_ROOT_DIR=${PRJ_DEST_DIR} -DCMAKE_BUILD_TYPE=Debug -S . -B _build"
+	# 	else
+	# 		options="-DOPENSSL_ROOT_DIR=${PRJ_DEST_DIR} -DCMAKE_BUILD_TYPE=Release -S . -B _build"
+	# 	fi
 
-		# Configure OQS Provider
-		echo "--> Configuring OCA oqsprovider ..."
-		result=$( cd ${OQS_OSSL_PROV_DIR} && liboqs_DIR=${PRJ_DEST_DIR} cmake ${options} 2>&1 )
+	# 	# Configure OQS Provider
+	# 	echo "--> Configuring OCA oqsprovider ..."
+	# 	result=$( cd ${OQS_OSSL_PROV_DIR} && liboqs_DIR=${PRJ_DEST_DIR} cmake ${options} 2>&1 )
 
-		if [ $? -gt 0 ] ; then
-			echo "    [ERROR: Cannot configure OCA oqsprovider (${OQS_OSSL_PROV_FULL_URL})!]"
-			echo
-			echo "$result"
-			echo
-			exit 1
-		else
-			echo "    [SUCCESS: OCA oqsprovider successfully configured]"
-		fi
+	# 	if [ $? -gt 0 ] ; then
+	# 		echo "    [ERROR: Cannot configure OCA oqsprovider (${OQS_OSSL_PROV_FULL_URL})!]"
+	# 		echo
+	# 		echo "$result"
+	# 		echo
+	# 		exit 1
+	# 	else
+	# 		echo "    [SUCCESS: OCA oqsprovider successfully configured]"
+	# 	fi
 
-		# Execute the build
-		echo "--> Building OCA oqsprovider (${OQS_OSSL_PROV_VERSION}) ..."
+	# 	# Execute the build
+	# 	echo "--> Building OCA oqsprovider (${OQS_OSSL_PROV_VERSION}) ..."
 
-		# Let's now build the OpenSSL library
-		result=$( cd ${OQS_OCA_PROV_DIR} && cmake --build _build 2>&1 )
-		if [ $? -gt 0 ] ; then
-			echo "    [ERROR: Cannot build OCA oqsprovider!]"
-			echo
-			echo "$result"
-			echo
-			exit 1
-		else
-			echo "    [SUCCESS: OCA oqsprovider successfully built]"
-		fi
+	# 	# Let's now build the OpenSSL library
+	# 	result=$( cd ${OQS_OCA_PROV_DIR} && cmake --build _build 2>&1 )
+	# 	if [ $? -gt 0 ] ; then
+	# 		echo "    [ERROR: Cannot build OCA oqsprovider!]"
+	# 		echo
+	# 		echo "$result"
+	# 		echo
+	# 		exit 1
+	# 	else
+	# 		echo "    [SUCCESS: OCA oqsprovider successfully built]"
+	# 	fi
 
-		# Let's now build the OpenSSL library
-		result=$( cd ${OQS_OCA_PROV_DIR} && ${SUDO} cmake --install _build 2>&1 )
-		if [ $? -gt 0 ] ; then
-			echo "    [ERROR: Cannot install OCA oqsprovider!]"
-			echo
-			echo "$result"
-			echo
-			exit 1
-		else
-			echo "    [SUCCESS: OCA oqsprovider successfully installed on ${PRJ_DEST_DIR}]"
-		fi
-		echo "--> Removing Compressed Archive (${OQS_OCA_PROV_OUTPUT})"
-		[ -f "${OQS_OCA_PROV_OUTPUT}" ] && rm "${OQS_OCA_PROV_OUTPUT}"
-		echo "    [SUCCESS: Archive Removed]"
-	fi
+	# 	# Let's now build the OpenSSL library
+	# 	result=$( cd ${OQS_OCA_PROV_DIR} && ${SUDO} cmake --install _build 2>&1 )
+	# 	if [ $? -gt 0 ] ; then
+	# 		echo "    [ERROR: Cannot install OCA oqsprovider!]"
+	# 		echo
+	# 		echo "$result"
+	# 		echo
+	# 		exit 1
+	# 	else
+	# 		echo "    [SUCCESS: OCA oqsprovider successfully installed on ${PRJ_DEST_DIR}]"
+	# 	fi
+	# 	echo "--> Removing Compressed Archive (${OQS_OCA_PROV_OUTPUT})"
+	# 	[ -f "${OQS_OCA_PROV_OUTPUT}" ] && rm "${OQS_OCA_PROV_OUTPUT}"
+	# 	echo "    [SUCCESS: Archive Removed]"
+	# fi
 
 	if [ "x${USE_ENTRUST_PROVIDER}" = "xYES" ] ; then
 		# ENTRUST oqsprovider - download process uses clone of repos
